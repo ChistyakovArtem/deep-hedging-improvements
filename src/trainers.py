@@ -71,7 +71,7 @@ class TrainerConfig:
     pnl_start_epoch: int = 0
 
     # optimiser
-    optimizer: str   = "adam"      # "adam" | "adamw"
+    optimizer: str   = "adam"      # "adam" | "adamw" | "kfac" | "muon"
     lr:        float = 1e-3
 
     # training loop
@@ -93,17 +93,314 @@ class TrainerConfig:
     beta_start: float = 0.05
     beta_end:   float = 0.001
 
+    # K-FAC
+    kfac_damping:     float = 1e-1
+    kfac_ema_decay:   float = 0.95
+    kfac_update_freq: int   = 10
+    kfac_momentum:    float = 0.9
+    kfac_grad_clip:   float = 1.0     # max global ‖nat-grad‖ after preconditioning
+
+    # Muon (applied to 2D params; 1D/others fall back to Adam)
+    muon_momentum: float = 0.95
+    muon_ns_steps: int   = 5
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Optimisers: Muon + K-FAC
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _newton_schulz5(G: torch.Tensor, steps: int = 5, eps: float = 1e-7) -> torch.Tensor:
+    """
+    Quintic Newton-Schulz iteration to approximate the zeroth power (orthogonaliser).
+    For M = U Σ V^T  →  NS(M) ≈ U V^T   (i.e. all singular values mapped to ~1).
+
+    Coeffs (3.4445, -4.7750, 2.0315) from Keller Jordan's Muon reference
+    (tuned to keep σ ∈ (0, √3) within (0, 1.01) after 5 iterations).
+    """
+    a, b, c = 3.4445, -4.7750, 2.0315
+    X = G.clone().float()
+    X = X / (X.norm() + eps)
+    transposed = X.size(-2) > X.size(-1)
+    if transposed:
+        X = X.transpose(-2, -1)
+    for _ in range(steps):
+        A = X @ X.transpose(-2, -1)
+        B = b * A + c * (A @ A)
+        X = a * X + B @ X
+    if transposed:
+        X = X.transpose(-2, -1)
+    return X.to(G.dtype)
+
+
+class Muon(optim.Optimizer):
+    """
+    Momentum w/ Orthogonalised updates via Newton-Schulz (Keller Jordan, 2024).
+
+    Δ_t = momentum * Δ_{t-1} + g_t                         (momentum buffer)
+    U_t = NS5( g_t + momentum * Δ_t )                      (orthogonalise)
+    p   -= lr * sqrt(max(1, out/in)) * U_t                 (shape-aware scaling)
+
+    Only 2D parameters. Split other params off and feed them to Adam.
+    """
+
+    def __init__(self, params, lr: float = 2e-2, momentum: float = 0.95,
+                 ns_steps: int = 5, weight_decay: float = 0.0):
+        defaults = dict(lr=lr, momentum=momentum,
+                        ns_steps=ns_steps, weight_decay=weight_decay)
+        super().__init__(params, defaults)
+
+    @torch.no_grad()
+    def step(self, closure=None):
+        loss = None
+        if closure is not None:
+            with torch.enable_grad():
+                loss = closure()
+
+        for group in self.param_groups:
+            lr       = group["lr"]
+            momentum = group["momentum"]
+            ns_steps = group["ns_steps"]
+            wd       = group["weight_decay"]
+
+            for p in group["params"]:
+                if p.grad is None:
+                    continue
+                if p.ndim != 2:
+                    raise ValueError(
+                        f"Muon expects 2D params only, got shape {tuple(p.shape)}"
+                    )
+                g = p.grad
+                if wd != 0:
+                    g = g.add(p, alpha=wd)
+
+                state = self.state[p]
+                if "momentum_buffer" not in state:
+                    state["momentum_buffer"] = torch.zeros_like(g)
+                buf = state["momentum_buffer"]
+                buf.mul_(momentum).add_(g)
+
+                # Nesterov-style lookahead: g + momentum * buf
+                update = _newton_schulz5(g.add(buf, alpha=momentum), steps=ns_steps)
+                scale  = max(1.0, p.size(-2) / p.size(-1)) ** 0.5
+                p.add_(update, alpha=-lr * scale)
+
+        return loss
+
+
+class KFACOptimizer:
+    """
+    K-FAC preconditioner for nn.Linear layers (Martens & Grosse, 2015).
+
+    For each Linear layer with output  y = x W^T + b  we keep running
+    Kronecker factors
+        A ≈ E[ ã ã^T ]       with ã = [x, 1]
+        G ≈ E[ g g^T ]       with g = ∂L/∂y
+    via EMA. The layer Fisher block is F ≈ A ⊗ G, so the natural gradient
+    for  W̃ = [W | b]  is
+        nat = (G + λI)^{-1} · g_W̃ · (A + λI)^{-1}.
+
+    Activations / output-gradients are captured with forward-pre and
+    full-backward hooks — works with modules that are re-used in a
+    time-unrolled loop (per-call activations are stacked in LIFO, matched
+    by the reverse-order backward hook calls).
+
+    Non-Linear params (e.g. PAF frequency matrix) are handled by a plain
+    momentum-SGD step on their raw gradient. Inverses are refreshed every
+    `update_freq` optimiser steps.
+    """
+
+    def __init__(self, model: nn.Module,
+                 lr:           float = 1e-3,
+                 damping:      float = 1e-1,
+                 ema_decay:    float = 0.95,
+                 update_freq:  int   = 10,
+                 momentum:     float = 0.9,
+                 grad_clip:    float = 1.0):
+        self.model        = model
+        self.lr           = lr
+        self.damping      = damping
+        self.ema_decay    = ema_decay
+        self.update_freq  = update_freq
+        self.momentum     = momentum
+        self.grad_clip    = grad_clip
+        self._step_count  = 0
+
+        self._linear_modules: List[nn.Linear] = [
+            m for m in model.modules() if isinstance(m, nn.Linear)
+        ]
+        self._a_stack: dict = {m: [] for m in self._linear_modules}
+        self._A:       dict = {}   # m -> (in(+1), in(+1))
+        self._G:       dict = {}   # m -> (out, out)
+        self._A_inv:   dict = {}
+        self._G_inv:   dict = {}
+        self._mom_buf: dict = {}   # id(p) -> buffer
+
+        for m in self._linear_modules:
+            m.register_forward_pre_hook(self._save_input_hook(m))
+            m.register_full_backward_hook(self._save_grad_hook(m))
+
+    # ── hooks ────────────────────────────────────────────────────────────────
+    def _save_input_hook(self, module):
+        def hook(_mod, inp):
+            if not torch.is_grad_enabled():
+                return
+            self._a_stack[module].append(inp[0].detach())
+        return hook
+
+    def _save_grad_hook(self, module):
+        def hook(_mod, _grad_in, grad_out):
+            stack = self._a_stack[module]
+            if not stack or grad_out[0] is None:
+                return
+            a = stack.pop()                           # LIFO: matches reverse fwd order
+            g = grad_out[0].detach()
+            B = a.shape[0]
+            if module.bias is not None:
+                ones = torch.ones(B, 1, device=a.device, dtype=a.dtype)
+                a = torch.cat([a, ones], dim=1)
+            A_loc = (a.t() @ a) / B
+            G_loc = (g.t() @ g) / B
+            ema   = self.ema_decay
+            if module in self._A:
+                self._A[module].mul_(ema).add_(A_loc, alpha=1 - ema)
+                self._G[module].mul_(ema).add_(G_loc, alpha=1 - ema)
+            else:
+                self._A[module] = A_loc.clone()
+                self._G[module] = G_loc.clone()
+        return hook
+
+    # ── maintenance ──────────────────────────────────────────────────────────
+    def _refresh_inverses(self):
+        d = self.damping ** 0.5                       # split damping across A, G
+        for m in self._linear_modules:
+            A = self._A.get(m); G = self._G.get(m)
+            if A is None or G is None:
+                continue
+            eye_A = torch.eye(A.shape[0], device=A.device, dtype=A.dtype)
+            eye_G = torch.eye(G.shape[0], device=G.device, dtype=G.dtype)
+            self._A_inv[m] = torch.linalg.inv(A + d * eye_A)
+            self._G_inv[m] = torch.linalg.inv(G + d * eye_G)
+
+    def zero_grad(self, set_to_none: bool = True):
+        for p in self.model.parameters():
+            if p.grad is None:
+                continue
+            if set_to_none:
+                p.grad = None
+            else:
+                p.grad.zero_()
+        # stale activations from a forward pass whose backward was skipped
+        for s in self._a_stack.values():
+            s.clear()
+
+    # ── step ────────────────────────────────────────────────────────────────
+    @torch.no_grad()
+    def step(self, closure=None):
+        loss = None
+        if closure is not None:
+            with torch.enable_grad():
+                loss = closure()
+
+        self._step_count += 1
+        if self._step_count == 1 or self._step_count % self.update_freq == 0:
+            self._refresh_inverses()
+
+        # precondition Linear-layer gradients in-place
+        linear_param_ids = set()
+        for m in self._linear_modules:
+            if m.weight.grad is None or m not in self._A_inv:
+                if m.weight is not None:  linear_param_ids.add(id(m.weight))
+                if m.bias   is not None:  linear_param_ids.add(id(m.bias))
+                continue
+            A_inv = self._A_inv[m]
+            G_inv = self._G_inv[m]
+            if m.bias is not None:
+                grad = torch.cat([m.weight.grad, m.bias.grad.unsqueeze(1)], dim=1)
+            else:
+                grad = m.weight.grad
+            nat = G_inv @ grad @ A_inv
+            if m.bias is not None:
+                m.weight.grad.copy_(nat[:, :-1])
+                m.bias.grad.copy_(nat[:, -1])
+                linear_param_ids.add(id(m.weight))
+                linear_param_ids.add(id(m.bias))
+            else:
+                m.weight.grad.copy_(nat)
+                linear_param_ids.add(id(m.weight))
+
+        # trust-region: clip ‖preconditioned grad‖ — bounds the effective step
+        if self.grad_clip is not None and self.grad_clip > 0:
+            torch.nn.utils.clip_grad_norm_(
+                [p for p in self.model.parameters() if p.grad is not None],
+                max_norm=self.grad_clip,
+            )
+
+        # SGD-with-momentum step on every trainable param
+        for p in self.model.parameters():
+            if p.grad is None or not p.requires_grad:
+                continue
+            buf = self._mom_buf.get(id(p))
+            if buf is None:
+                buf = torch.zeros_like(p)
+                self._mom_buf[id(p)] = buf
+            buf.mul_(self.momentum).add_(p.grad)
+            p.add_(buf, alpha=-self.lr)
+
+        return loss
+
+
+class _CombinedOptimizer:
+    """Tiny wrapper that fans zero_grad / step calls over several optimisers."""
+
+    def __init__(self, optimizers: List):
+        self.optimizers = [o for o in optimizers if o is not None]
+
+    def zero_grad(self, set_to_none: bool = True):
+        for opt in self.optimizers:
+            opt.zero_grad(set_to_none=set_to_none)
+
+    def step(self):
+        for opt in self.optimizers:
+            opt.step()
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Utilities
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _make_optimizer(name: str, params, lr: float) -> optim.Optimizer:
+def _make_optimizer(name: str, params, lr: float, *,
+                    model:            Optional[nn.Module] = None,
+                    kfac_damping:     float = 1e-1,
+                    kfac_ema_decay:   float = 0.95,
+                    kfac_update_freq: int   = 10,
+                    kfac_momentum:    float = 0.9,
+                    kfac_grad_clip:   float = 1.0,
+                    muon_momentum:    float = 0.95,
+                    muon_ns_steps:    int   = 5):
     if name == "adam":
         return optim.Adam(params, lr=lr)
     if name == "adamw":
         return optim.AdamW(params, lr=lr)
-    raise ValueError(f"Unknown optimizer: {name!r}. Choose 'adam' or 'adamw'.")
+    if name == "kfac":
+        if model is None:
+            raise ValueError("optimizer='kfac' requires the net "
+                             "(pass model=... to _make_optimizer).")
+        return KFACOptimizer(model, lr=lr,
+                             damping=kfac_damping,
+                             ema_decay=kfac_ema_decay,
+                             update_freq=kfac_update_freq,
+                             momentum=kfac_momentum,
+                             grad_clip=kfac_grad_clip)
+    if name == "muon":
+        params_list = [p for p in params if p.requires_grad]
+        params_2d   = [p for p in params_list if p.ndim == 2]
+        params_rest = [p for p in params_list if p.ndim != 2]
+        muon = Muon(params_2d, lr=lr,
+                    momentum=muon_momentum, ns_steps=muon_ns_steps)
+        adam = optim.Adam(params_rest, lr=lr) if params_rest else None
+        return _CombinedOptimizer([muon, adam])
+    raise ValueError(f"Unknown optimizer: {name!r}. "
+                     f"Choose 'adam' | 'adamw' | 'kfac' | 'muon'.")
 
 
 def _eval_loss(net, paths_t: torch.Tensor,
@@ -736,8 +1033,17 @@ class DeviationTrainer(_BaseTrainer):
                          device, risk_aversion, K, cost)
         self.r           = r
         self.sigma_const = sigma_const   # None → Heston mode
-        self.optimizer   = _make_optimizer(cfg.optimizer,
-                                           self.net.parameters(), cfg.lr)
+        self.optimizer   = _make_optimizer(
+            cfg.optimizer, self.net.parameters(), cfg.lr,
+            model            = self.net,
+            kfac_damping     = cfg.kfac_damping,
+            kfac_ema_decay   = cfg.kfac_ema_decay,
+            kfac_update_freq = cfg.kfac_update_freq,
+            kfac_momentum    = cfg.kfac_momentum,
+            kfac_grad_clip   = cfg.kfac_grad_clip,
+            muon_momentum    = cfg.muon_momentum,
+            muon_ns_steps    = cfg.muon_ns_steps,
+        )
 
     def _bsm_delta(self, state_t: torch.Tensor, tau: float) -> torch.Tensor:
         """

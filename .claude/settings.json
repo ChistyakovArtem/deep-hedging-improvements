@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip list *)",
+      "Bash(python -c \"from src.trainers import DeviationTrainer, Muon, KFACOptimizer, TrainerConfig, _make_optimizer; print\\('import OK'\\)\")",
+      "Bash(python3 -c ' *)",
+      "WebFetch(domain:arxiv.org)",
+      "WebFetch(domain:www.hse.ru)",
+      "WebFetch(domain:cs.hse.ru)",
+      "Bash(python3 -c \"import docx; print\\('python-docx', docx.__version__\\)\")",
+      "Bash(pip install *)",
+      "Bash(python3 gen_report.py)"
+    ]
+  }
+}

@@ -37,6 +37,11 @@ PPOStyleTrainer
     Proximal Policy Optimisation adapted to continuous hedging.
     Clipped importance-weight objective limits step size per iteration.
     Ref: Schulman et al. (2017) PPO.
+
+SACDeviationTrainer
+    Merge of SACTrainer and DeviationTrainer: net predicts the deviation
+    from BSM delta, sampled stochastically via the reparameterization trick
+    with entropy bonus annealed beta_start → beta_end.
 """
 
 from __future__ import annotations
@@ -1134,6 +1139,174 @@ class DeviationTrainer(_BaseTrainer):
                 val_loss = self._eval_deviation_loss()
                 entry    = {"epoch": epoch, "val_loss": val_loss,
                             "elapsed": time.perf_counter() - t0}
+
+                if val_loss < self._best_val:
+                    self._best_val   = val_loss
+                    self._no_improve = 0
+                    self.best_net    = copy.deepcopy(self.net)
+                else:
+                    self._no_improve += 1
+
+                log.append(entry)
+
+                patience = cfg.early_stop_patience
+                if (patience > 0) and (self._no_improve >= patience):
+                    break
+
+        self._restore_best()
+        return log
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 6. SAC + Deviation
+# ─────────────────────────────────────────────────────────────────────────────
+
+class SACDeviationTrainer(_BaseTrainer):
+    """
+    Merge of SACTrainer and DeviationTrainer.
+
+    Net предсказывает mu — поправку к BSM-дельте. К mu добавляется гауссов
+    шум через reparameterization trick:
+        δ_total = δ_BSM + mu + exp(log_std) · ε,   ε ~ N(0, 1)
+
+    Loss = SoftMin(PnL) - β(t) · H(π)
+        H(π) = 0.5·(1 + log(2π)) + log_std
+
+    β анилируется beta_start → beta_end (как в SACTrainer).
+    На валидации/тесте используется детерминированная политика
+    (δ_total = δ_BSM + mu).
+
+    sigma_const:
+        GBM    — передай sigma семплера
+        Heston — None, тогда σ_t = sqrt(v_t) из state_t[:, 1]
+    """
+
+    def __init__(self, cfg: TrainerConfig,
+                 sampler,
+                 paths_val_t:  torch.Tensor,
+                 paths_test_t: torch.Tensor,
+                 device:       torch.device,
+                 risk_aversion: float,
+                 K:    float,
+                 cost: float,
+                 r:    float = 0.01,
+                 sigma_const: Optional[float] = None):
+        super().__init__(cfg, sampler, paths_val_t, paths_test_t,
+                         device, risk_aversion, K, cost)
+        self.r           = r
+        self.sigma_const = sigma_const   # None → Heston mode
+        self.log_std     = nn.Parameter(torch.tensor(0.0, device=device))
+        self.optimizer   = _make_optimizer(
+            cfg.optimizer,
+            list(self.net.parameters()) + [self.log_std],
+            cfg.lr,
+            model            = self.net,
+            kfac_damping     = cfg.kfac_damping,
+            kfac_ema_decay   = cfg.kfac_ema_decay,
+            kfac_update_freq = cfg.kfac_update_freq,
+            kfac_momentum    = cfg.kfac_momentum,
+            kfac_grad_clip   = cfg.kfac_grad_clip,
+            muon_momentum    = cfg.muon_momentum,
+            muon_ns_steps    = cfg.muon_ns_steps,
+        )
+
+    def _beta(self, epoch: int) -> float:
+        frac = epoch / max(self.cfg.n_epochs, 1)
+        return self.cfg.beta_start * (self.cfg.beta_end / self.cfg.beta_start) ** frac
+
+    def _bsm_delta(self, state_t: torch.Tensor, tau: float) -> torch.Tensor:
+        S = state_t[:, 0]
+        if self.sigma_const is not None:
+            sigma = torch.full_like(S, self.sigma_const)
+        else:
+            sigma = state_t[:, 1].clamp(min=1e-8).sqrt()
+        return _bsm_delta_torch(S, sigma, tau, self.K, self.r)
+
+    def _deviation_backtest(self, paths_t: torch.Tensor,
+                            stochastic: bool) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        δ_total = δ_BSM + mu (+ exp(log_std)·ε если stochastic).
+        """
+        M, N_plus1, _ = paths_t.shape
+        N      = N_plus1 - 1
+        device = paths_t.device
+        S      = paths_t[:, :, 0]
+        tau_g  = torch.linspace(1.0, 0.0, N_plus1, device=device)
+        std    = self.log_std.exp() if stochastic else None
+
+        cash       = torch.zeros(M, device=device)
+        delta_prev = torch.zeros(M, device=device)
+        total_fees = torch.zeros(M, device=device)
+
+        for t in range(N):
+            state_t = paths_t[:, t, :]
+            tau_val = tau_g[t].item()
+
+            delta_bsm = self._bsm_delta(state_t, tau_val)
+
+            parts = [state_t, tau_g[t].expand(M, 1), delta_prev.unsqueeze(1)]
+            if self.cfg.use_pnl:
+                parts.append((cash + delta_prev * S[:, t]).unsqueeze(1))
+            mu = self.net(torch.cat(parts, dim=1)).squeeze(1)
+
+            if stochastic:
+                eps       = torch.randn_like(mu)
+                deviation = mu + std * eps
+            else:
+                deviation = mu
+
+            delta = delta_bsm + deviation
+
+            d_delta    = delta - delta_prev
+            fees       = self.cost * torch.abs(d_delta) * S[:, t]
+            cash       = cash - d_delta * S[:, t] - fees
+            total_fees = total_fees + fees
+            delta_prev = delta
+
+        cash += delta_prev * S[:, -1]
+        pnl   = cash - torch.clamp(S[:, -1] - self.K, min=0.0)
+        return pnl, total_fees
+
+    def _eval_deviation_loss(self) -> float:
+        self.net.eval()
+        with torch.no_grad():
+            pnl, _ = self._deviation_backtest(self.paths_val_t, stochastic=False)
+            loss   = SoftMin(pnl, self.a).item()
+        self.net.train()
+        return loss
+
+    def eval_on_test(self) -> tuple[np.ndarray, np.ndarray]:
+        self.net.eval()
+        with torch.no_grad():
+            pnl, fees = self._deviation_backtest(self.paths_test_t, stochastic=False)
+        self.net.train()
+        return (pnl.cpu().numpy(), fees.cpu().numpy())
+
+    def fit(self) -> List[dict]:
+        cfg = self.cfg
+        log: List[dict] = []
+        t0  = time.perf_counter()
+
+        for epoch in tqdm(range(1, cfg.n_epochs + 1)):
+            paths = self._sample()
+            self.optimizer.zero_grad()
+
+            pnl, _  = self._deviation_backtest(paths, stochastic=True)
+            entropy = 0.5 * (1.0 + math.log(2 * math.pi)) + self.log_std
+            beta    = self._beta(epoch)
+            loss    = SoftMin(pnl, self.a) - beta * entropy
+
+            loss.backward()
+            self.optimizer.step()
+
+            if epoch % cfg.log_every == 0:
+                val_loss = self._eval_deviation_loss()
+                entry    = {"epoch":    epoch,
+                            "val_loss": val_loss,
+                            "elapsed":  time.perf_counter() - t0,
+                            "log_std":  self.log_std.item(),
+                            "std":      self.log_std.exp().item(),
+                            "beta":     beta}
 
                 if val_loss < self._best_val:
                     self._best_val   = val_loss

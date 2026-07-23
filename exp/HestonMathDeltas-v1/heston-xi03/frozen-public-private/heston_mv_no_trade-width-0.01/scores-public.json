@@ -1,0 +1,18 @@
+{
+  "entropic_risk": 11.98842642623523,
+  "fees_mean": 0.19237020897179843,
+  "leaderboard": "public",
+  "loss_cvar_95": 12.771227001738628,
+  "loss_cvar_99": 14.754303186208933,
+  "method": {
+    "band_width": 0.01,
+    "kind": "heston_mv_no_trade"
+  },
+  "method_name": "heston_mv_no_trade-width-0.01",
+  "n_paths": 100000,
+  "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+  "pnl_mean": -8.339788079617025,
+  "pnl_std": 1.8292493122512308,
+  "score": -11.98842642623523,
+  "turnover_mean": 1.9271670778352024
+}

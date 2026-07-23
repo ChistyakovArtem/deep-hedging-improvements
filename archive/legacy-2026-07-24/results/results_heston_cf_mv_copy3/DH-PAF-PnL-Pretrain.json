@@ -1,0 +1,461 @@
+[
+  {
+    "epoch": 200,
+    "val_loss": 28.59914207458496,
+    "elapsed": 14.661637115292251,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 400,
+    "val_loss": 31.930286407470703,
+    "elapsed": 29.062780506443232,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 600,
+    "val_loss": 37.20573425292969,
+    "elapsed": 43.677201002370566,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 800,
+    "val_loss": 31.47352409362793,
+    "elapsed": 58.316652183420956,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 1000,
+    "val_loss": 32.64280319213867,
+    "elapsed": 73.03035794245079,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 1200,
+    "val_loss": 30.707714080810547,
+    "elapsed": 87.63922385405749,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 1400,
+    "val_loss": 32.67884063720703,
+    "elapsed": 102.21513128420338,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 1600,
+    "val_loss": 31.330669403076172,
+    "elapsed": 116.68255532812327,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 1800,
+    "val_loss": 31.89620018005371,
+    "elapsed": 131.2174834702164,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 2000,
+    "val_loss": 36.456966400146484,
+    "elapsed": 145.6695198500529,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 2200,
+    "val_loss": 107.98992919921875,
+    "elapsed": 160.65724292304367,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 2400,
+    "val_loss": 117.30224609375,
+    "elapsed": 175.70474288845435,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 2600,
+    "val_loss": 121.8380355834961,
+    "elapsed": 190.68029833724722,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 2800,
+    "val_loss": 123.3740234375,
+    "elapsed": 205.5361222331412,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 3000,
+    "val_loss": 121.62593078613281,
+    "elapsed": 220.43376600416377,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 3200,
+    "val_loss": 106.76542663574219,
+    "elapsed": 235.41357852099463,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 3400,
+    "val_loss": 105.8743896484375,
+    "elapsed": 250.2324086772278,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 3600,
+    "val_loss": 124.77345275878906,
+    "elapsed": 264.82480795821175,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 3800,
+    "val_loss": 95.60781860351562,
+    "elapsed": 279.35564789315686,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 4000,
+    "val_loss": 111.18318176269531,
+    "elapsed": 294.0281132562086,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 4200,
+    "val_loss": 86.34526824951172,
+    "elapsed": 308.60732846613973,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 4400,
+    "val_loss": 102.64910888671875,
+    "elapsed": 323.25424987543374,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 4600,
+    "val_loss": 84.59993743896484,
+    "elapsed": 337.9688847614452,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 4800,
+    "val_loss": 93.67007446289062,
+    "elapsed": 352.6604504971765,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 5000,
+    "val_loss": 91.98959350585938,
+    "elapsed": 367.3285868722014,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 5200,
+    "val_loss": 83.68112182617188,
+    "elapsed": 381.7519375872798,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 5400,
+    "val_loss": 87.12362670898438,
+    "elapsed": 396.2089596022852,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 5600,
+    "val_loss": 90.90264892578125,
+    "elapsed": 410.9046822451055,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 5800,
+    "val_loss": 89.61134338378906,
+    "elapsed": 425.68085019942373,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 6000,
+    "val_loss": 88.25720977783203,
+    "elapsed": 440.5976561033167,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 6200,
+    "val_loss": 87.97332000732422,
+    "elapsed": 455.1820835880935,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 6400,
+    "val_loss": 90.92729187011719,
+    "elapsed": 469.8789106584154,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 6600,
+    "val_loss": 95.61604309082031,
+    "elapsed": 484.6490672994405,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 6800,
+    "val_loss": 85.50141906738281,
+    "elapsed": 499.2406473532319,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 7000,
+    "val_loss": 91.01031494140625,
+    "elapsed": 513.9110019020736,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 7200,
+    "val_loss": 79.21293640136719,
+    "elapsed": 528.5026534050703,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 7400,
+    "val_loss": 77.13866424560547,
+    "elapsed": 543.0412086062133,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 7600,
+    "val_loss": 96.61138916015625,
+    "elapsed": 557.5707055451348,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 7800,
+    "val_loss": 92.42852783203125,
+    "elapsed": 572.5352300470695,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 8000,
+    "val_loss": 78.92354583740234,
+    "elapsed": 588.0098781492561,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 8200,
+    "val_loss": 71.88023376464844,
+    "elapsed": 603.2198790800758,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 8400,
+    "val_loss": 74.89698791503906,
+    "elapsed": 618.7199389161542,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 8600,
+    "val_loss": 72.0289077758789,
+    "elapsed": 634.2261473531835,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 8800,
+    "val_loss": 75.4747543334961,
+    "elapsed": 649.7441792762838,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 9000,
+    "val_loss": 73.51643371582031,
+    "elapsed": 665.230797002092,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 9200,
+    "val_loss": 68.67424011230469,
+    "elapsed": 680.3392862654291,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 9400,
+    "val_loss": 74.46481323242188,
+    "elapsed": 695.644453952089,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 9600,
+    "val_loss": 92.70162963867188,
+    "elapsed": 711.065138515085,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 9800,
+    "val_loss": 74.92378234863281,
+    "elapsed": 726.5472580841742,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 10000,
+    "val_loss": 63.88032531738281,
+    "elapsed": 741.9418765050359,
+    "test_softmin": NaN,
+    "mean_pnl": NaN,
+    "std_pnl": NaN,
+    "fees_mean": NaN
+  },
+  {
+    "epoch": 10000,
+    "val_loss": 63.88032531738281,
+    "elapsed": 741.9603876490146,
+    "test_softmin": 27.01291847229004,
+    "mean_pnl": -8.149224281311035,
+    "std_pnl": 6.4218363761901855,
+    "fees_mean": 0.33227452635765076
+  }
+]

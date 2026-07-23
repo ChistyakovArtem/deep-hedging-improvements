@@ -1,0 +1,18 @@
+{
+  "entropic_risk": 11.656196736891653,
+  "fees_mean": 0.21269729598119858,
+  "leaderboard": "public",
+  "loss_cvar_95": 13.444538640871068,
+  "loss_cvar_99": 15.060768788630194,
+  "method": {
+    "kind": "leland_local_vol",
+    "leland_scale": 20.0
+  },
+  "method_name": "leland_local_vol-scale-20",
+  "n_paths": 100000,
+  "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+  "pnl_mean": -8.365841549522877,
+  "pnl_std": 2.143568549682777,
+  "score": -11.656196736891653,
+  "turnover_mean": 2.1232976207315923
+}

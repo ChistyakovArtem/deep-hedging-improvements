@@ -1,0 +1,45 @@
+experiment = "HestonMathDeltas-v1"
+project_config = "config/project.toml"
+project_config_sha256 = "c900418fe0b0eefd45502ae5c6087b1dc96825bc5a3eaae27ded0bae7306bde7"
+n_configs = 34
+private_policy = "fixed methods plus the public-selected member of each tuned family"
+config_directories = [
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/no_hedge",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_cf_delta",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_mv_delta",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_mv_no_trade-width-0",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_mv_no_trade-width-0.005",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_mv_no_trade-width-0.01",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_mv_no_trade-width-0.02",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_mv_no_trade-width-0.04",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_mv_no_trade-width-0.08",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/heston_mv_no_trade-width-0.16",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-0",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-0.5",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-1",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-2",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-3",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-4",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-6",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-8",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-12",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-14",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-15",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-16",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-17",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-18",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-19",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-20",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-21",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-22",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-24",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-32",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-48",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-64",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-96",
+    "exp/HestonMathDeltas-v1/heston-xi03/frozen-public-private/leland_local_vol-scale-128",
+]
+
+[selection]
+heston_mv_no_trade = "lowest public entropic_risk"
+leland_local_vol = "lowest public entropic_risk"

@@ -1,0 +1,8 @@
+{
+  "n_quad": 2048,
+  "phi_max": 50.0,
+  "kind": "truncation_check",
+  "label": "q2048_phi50",
+  "batch_size": 1024,
+  "elapsed_compute_sec": 0.744964949786663
+}

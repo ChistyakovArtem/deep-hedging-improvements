@@ -1,0 +1,18 @@
+[experiment]
+name = "HestonMathDeltas-v1"
+search = "heston-xi03-public-select-private-final"
+market = "heston-xi03"
+config_id = 11
+method_name = "leland_local_vol-scale-0.5"
+project_config = "config/project.toml"
+project_config_sha256 = "c900418fe0b0eefd45502ae5c6087b1dc96825bc5a3eaae27ded0bae7306bde7"
+
+[method]
+kind = "leland_local_vol"
+leland_scale = 0.5
+
+[evaluation]
+public = true
+private = false
+private_if_public_selected = true
+save_predictions = true

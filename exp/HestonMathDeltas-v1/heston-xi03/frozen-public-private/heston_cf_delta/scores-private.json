@@ -1,0 +1,17 @@
+{
+  "entropic_risk": 12.986775341115239,
+  "fees_mean": 0.2237126822078228,
+  "leaderboard": "private",
+  "loss_cvar_95": 13.439694011194709,
+  "loss_cvar_99": 15.306737242402374,
+  "method": {
+    "kind": "heston_cf_delta"
+  },
+  "method_name": "heston_cf_delta",
+  "n_paths": 100000,
+  "paths_sha256": "e5223984376a2491b7e98f709eade321de34976928cf3f8bde287a46f76ac035",
+  "pnl_mean": -8.374165247988701,
+  "pnl_std": 2.2151209279506747,
+  "score": -12.986775341115239,
+  "turnover_mean": 2.258749700628519
+}

@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deep-hedger"
+version = "0.1.0"
+description = "Reproducible strong-default experiments for deep hedging"
+requires-python = "==3.12.9"
+dependencies = [
+    "numpy==2.3.1",
+    "scipy==1.16.0",
+    "tomli-w==1.2.0",
+    "torch==2.7.1",
+    "tqdm==4.67.1",
+]
+
+[dependency-groups]
+dev = ["pytest==8.4.1", "ruff==0.12.2"]
+yandex_nirvana_dl = [
+    "nirvana-dl==7135262",
+    "yandex-global-state-controller==1.2.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["deep_hedger*", "src*", "bin*", "dev*"]
+
+[tool.ruff]
+line-length = 96
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.uv]
+default-groups = ["yandex_nirvana_dl"]
+package = true
+constraint-dependencies = [
+    # Match the already deployed ModularML Nirvana layer exactly.
+    "filelock==3.18.0",
+    "fsspec==2025.5.1",
+    "markupsafe==3.0.2",
+    "networkx==3.5",
+    "setuptools==80.9.0",
+    "typing-extensions==4.14.1",
+]
+
+[[tool.uv.index]]
+name = "yandex"
+url = "https://pypi.yandex-team.ru/simple"
+explicit = true
+
+[tool.uv.sources]
+nirvana-dl = { index = "yandex" }
+yandex-global-state-controller = { index = "yandex" }

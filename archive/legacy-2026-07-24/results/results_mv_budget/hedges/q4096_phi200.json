@@ -1,0 +1,8 @@
+{
+  "n_quad": 4096,
+  "phi_max": 200.0,
+  "kind": "node_curve",
+  "label": "q4096_phi200",
+  "batch_size": 1024,
+  "elapsed_compute_sec": 1.012643311638385
+}

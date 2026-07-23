@@ -1,0 +1,338 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{22}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{} and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showURL}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showURL #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[Bates(1996)]%
+        {bates1996jumps}
+\bibfield{author}{\bibinfo{person}{David~S. Bates}.}
+  \bibinfo{year}{1996}\natexlab{}.
+\newblock \showarticletitle{Jumps and Stochastic Volatility: Exchange Rate
+  Processes Implicit in Deutsche Mark Options}.
+\newblock \bibinfo{journal}{\emph{The Review of Financial Studies}}
+  \bibinfo{volume}{9}, \bibinfo{number}{1} (\bibinfo{year}{1996}),
+  \bibinfo{pages}{69--107}.
+\newblock
+\href{https://doi.org/10.1093/rfs/9.1.69}{doi:\nolinkurl{10.1093/rfs/9.1.69}}
+
+
+\bibitem[Bayer et~al\mbox{.}(2016)]%
+        {bayer2016rough}
+\bibfield{author}{\bibinfo{person}{Christian Bayer}, \bibinfo{person}{Peter~K.
+  Friz}, {and} \bibinfo{person}{Jim Gatheral}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Pricing under Rough Volatility}.
+\newblock \bibinfo{journal}{\emph{Quantitative Finance}} \bibinfo{volume}{16},
+  \bibinfo{number}{6} (\bibinfo{year}{2016}), \bibinfo{pages}{887--904}.
+\newblock
+\href{https://doi.org/10.1080/14697688.2015.1099717}{doi:\nolinkurl{10.1080/14697688.2015.1099717}}
+
+
+\bibitem[Black and Scholes(1973)]%
+        {black1973pricing}
+\bibfield{author}{\bibinfo{person}{Fischer Black} {and} \bibinfo{person}{Myron
+  Scholes}.} \bibinfo{year}{1973}\natexlab{}.
+\newblock \showarticletitle{The Pricing of Options and Corporate Liabilities}.
+\newblock \bibinfo{journal}{\emph{Journal of Political Economy}}
+  \bibinfo{volume}{81}, \bibinfo{number}{3} (\bibinfo{year}{1973}),
+  \bibinfo{pages}{637--654}.
+\newblock
+\href{https://doi.org/10.1086/260062}{doi:\nolinkurl{10.1086/260062}}
+
+
+\bibitem[Buehler et~al\mbox{.}(2019)]%
+        {buehler2019deep}
+\bibfield{author}{\bibinfo{person}{Hans Buehler}, \bibinfo{person}{Lukas
+  Gonon}, \bibinfo{person}{Josef Teichmann}, {and} \bibinfo{person}{Ben Wood}.}
+  \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Deep Hedging}.
+\newblock \bibinfo{journal}{\emph{Quantitative Finance}} \bibinfo{volume}{19},
+  \bibinfo{number}{8} (\bibinfo{year}{2019}), \bibinfo{pages}{1271--1291}.
+\newblock
+\href{https://doi.org/10.1080/14697688.2019.1571683}{doi:\nolinkurl{10.1080/14697688.2019.1571683}}
+
+
+\bibitem[Buehler et~al\mbox{.}(2024)]%
+        {buehler2024bellman}
+\bibfield{author}{\bibinfo{person}{Hans Buehler}, \bibinfo{person}{Phillip
+  Murray}, {and} \bibinfo{person}{Ben Wood}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \bibinfo{title}{Deep Bellman Hedging}.
+\newblock
+\shownote{arXiv:2207.00932, version 4}.
+\newblock
+\href{https://doi.org/10.48550/arXiv.2207.00932}{doi:\nolinkurl{10.48550/arXiv.2207.00932}}
+
+
+\bibitem[Cao et~al\mbox{.}(2021)]%
+        {cao2021deep}
+\bibfield{author}{\bibinfo{person}{Jay Cao}, \bibinfo{person}{Jacky Chen},
+  \bibinfo{person}{John Hull}, {and} \bibinfo{person}{Zissis Poulos}.}
+  \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Deep Hedging of Derivatives Using Reinforcement
+  Learning}.
+\newblock \bibinfo{journal}{\emph{The Journal of Financial Data Science}}
+  \bibinfo{volume}{3}, \bibinfo{number}{1} (\bibinfo{year}{2021}),
+  \bibinfo{pages}{10--27}.
+\newblock
+\href{https://doi.org/10.3905/jfds.2020.1.052}{doi:\nolinkurl{10.3905/jfds.2020.1.052}}
+
+
+\bibitem[Defazio et~al\mbox{.}(2024)]%
+        {defazio2024schedulefree}
+\bibfield{author}{\bibinfo{person}{Aaron Defazio}, \bibinfo{person}{Xingyu
+  Yang}, \bibinfo{person}{Harsh Mehta}, \bibinfo{person}{Konstantin
+  Mishchenko}, \bibinfo{person}{Ahmed Khaled}, {and} \bibinfo{person}{Ashok
+  Cutkosky}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{The Road Less Scheduled}. In
+  \bibinfo{booktitle}{\emph{Advances in Neural Information Processing
+  Systems}}, Vol.~\bibinfo{volume}{37}. \bibinfo{publisher}{Curran Associates,
+  Inc.}, \bibinfo{address}{Red Hook, NY, USA}, \bibinfo{pages}{9974--10007}.
+\newblock
+\href{https://doi.org/10.52202/079017-0320}{doi:\nolinkurl{10.52202/079017-0320}}
+
+
+\bibitem[Gorishniy et~al\mbox{.}(2022)]%
+        {gorishniy2022embeddings}
+\bibfield{author}{\bibinfo{person}{Yury Gorishniy}, \bibinfo{person}{Ivan
+  Rubachev}, {and} \bibinfo{person}{Artem Babenko}.}
+  \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{On Embeddings for Numerical Features in Tabular
+  Deep Learning}. In \bibinfo{booktitle}{\emph{Advances in Neural Information
+  Processing Systems}}, Vol.~\bibinfo{volume}{35}. \bibinfo{publisher}{Curran
+  Associates, Inc.}, \bibinfo{address}{Red Hook, NY, USA},
+  \bibinfo{pages}{24991--25004}.
+\newblock
+\urldef\tempurl%
+\url{https://proceedings.neurips.cc/paper_files/paper/2022/hash/9e9f0ffc3d836836ca96cbf8fe14b105-Abstract-Conference.html}
+\showURL{%
+\tempurl}
+
+
+\bibitem[Gorishniy et~al\mbox{.}(2026)]%
+        {gorishniy2026optimizers}
+\bibfield{author}{\bibinfo{person}{Yury Gorishniy}, \bibinfo{person}{Ivan
+  Rubachev}, \bibinfo{person}{Dmitrii Feoktistov}, {and} \bibinfo{person}{Artem
+  Babenko}.} \bibinfo{year}{2026}\natexlab{}.
+\newblock \bibinfo{title}{Benchmarking Optimizers for {MLP}s in Tabular Deep
+  Learning}.
+\newblock
+\shownote{arXiv:2604.15297}.
+\newblock
+\href{https://doi.org/10.48550/arXiv.2604.15297}{doi:\nolinkurl{10.48550/arXiv.2604.15297}}
+
+
+\bibitem[Haarnoja et~al\mbox{.}(2018)]%
+        {haarnoja2018sac}
+\bibfield{author}{\bibinfo{person}{Tuomas Haarnoja}, \bibinfo{person}{Aurick
+  Zhou}, \bibinfo{person}{Pieter Abbeel}, {and} \bibinfo{person}{Sergey
+  Levine}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Soft Actor-Critic: Off-Policy Maximum Entropy Deep
+  Reinforcement Learning with a Stochastic Actor}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 35th International Conference on
+  Machine Learning}} \emph{(\bibinfo{series}{Proceedings of Machine Learning
+  Research}, Vol.~\bibinfo{volume}{80})}. \bibinfo{publisher}{PMLR},
+  \bibinfo{address}{Stockholm, Sweden}, \bibinfo{pages}{1861--1870}.
+\newblock
+\urldef\tempurl%
+\url{https://proceedings.mlr.press/v80/haarnoja18b.html}
+\showURL{%
+\tempurl}
+
+
+\bibitem[Heston(1993)]%
+        {heston1993closed}
+\bibfield{author}{\bibinfo{person}{Steven~L. Heston}.}
+  \bibinfo{year}{1993}\natexlab{}.
+\newblock \showarticletitle{A Closed-Form Solution for Options with Stochastic
+  Volatility with Applications to Bond and Currency Options}.
+\newblock \bibinfo{journal}{\emph{The Review of Financial Studies}}
+  \bibinfo{volume}{6}, \bibinfo{number}{2} (\bibinfo{year}{1993}),
+  \bibinfo{pages}{327--343}.
+\newblock
+\href{https://doi.org/10.1093/rfs/6.2.327}{doi:\nolinkurl{10.1093/rfs/6.2.327}}
+
+
+\bibitem[Holzm{\"u}ller et~al\mbox{.}(2024)]%
+        {holzmueller2024better}
+\bibfield{author}{\bibinfo{person}{David Holzm{\"u}ller},
+  \bibinfo{person}{L{\'e}o Grinsztajn}, {and} \bibinfo{person}{Ingo
+  Steinwart}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{Better by Default: Strong Pre-Tuned {MLP}s and
+  Boosted Trees on Tabular Data}. In \bibinfo{booktitle}{\emph{Advances in
+  Neural Information Processing Systems}}, Vol.~\bibinfo{volume}{37}.
+  \bibinfo{publisher}{Curran Associates, Inc.}, \bibinfo{address}{Red Hook, NY,
+  USA}, \bibinfo{pages}{26577--26658}.
+\newblock
+\href{https://doi.org/10.52202/079017-0837}{doi:\nolinkurl{10.52202/079017-0837}}
+
+
+\bibitem[Hull and White(2017)]%
+        {hull2017optimal}
+\bibfield{author}{\bibinfo{person}{John~C. Hull} {and} \bibinfo{person}{Alan
+  White}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Optimal Delta Hedging for Options}.
+\newblock \bibinfo{journal}{\emph{Journal of Banking \& Finance}}
+  \bibinfo{volume}{82} (\bibinfo{year}{2017}), \bibinfo{pages}{180--190}.
+\newblock
+\href{https://doi.org/10.1016/j.jbankfin.2017.05.006}{doi:\nolinkurl{10.1016/j.jbankfin.2017.05.006}}
+
+
+\bibitem[Jordan et~al\mbox{.}(2024)]%
+        {jordan2024muon}
+\bibfield{author}{\bibinfo{person}{Keller Jordan}, \bibinfo{person}{Yuchen
+  Jin}, \bibinfo{person}{Vlado Boza}, \bibinfo{person}{Jiacheng You},
+  \bibinfo{person}{Franz Cesista}, \bibinfo{person}{Laker Newhouse}, {and}
+  \bibinfo{person}{Jeremy Bernstein}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \bibinfo{title}{Muon: An Optimizer for Hidden Layers in Neural
+  Networks}.
+\newblock
+\urldef\tempurl%
+\url{https://kellerjordan.github.io/posts/muon/}
+\showURL{%
+\tempurl}
+
+
+\bibitem[Keller-Ressel(2022)]%
+        {kellerressel2022bartlett}
+\bibfield{author}{\bibinfo{person}{Martin Keller-Ressel}.}
+  \bibinfo{year}{2022}\natexlab{}.
+\newblock \bibinfo{title}{Bartlett's Delta Revisited: Variance-Optimal Hedging
+  in the Lognormal {SABR} and in the Rough Bergomi Model}.
+\newblock
+\shownote{arXiv:2207.13573}.
+\newblock
+\href{https://doi.org/10.48550/arXiv.2207.13573}{doi:\nolinkurl{10.48550/arXiv.2207.13573}}
+
+
+\bibitem[Martens and Grosse(2015)]%
+        {martens2015kfac}
+\bibfield{author}{\bibinfo{person}{James Martens} {and} \bibinfo{person}{Roger
+  Grosse}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{Optimizing Neural Networks with Kronecker-factored
+  Approximate Curvature}. In \bibinfo{booktitle}{\emph{Proceedings of the 32nd
+  International Conference on Machine Learning}}
+  \emph{(\bibinfo{series}{Proceedings of Machine Learning Research},
+  Vol.~\bibinfo{volume}{37})}. \bibinfo{publisher}{PMLR},
+  \bibinfo{address}{Lille, France}, \bibinfo{pages}{2408--2417}.
+\newblock
+\urldef\tempurl%
+\url{https://proceedings.mlr.press/v37/martens15.html}
+\showURL{%
+\tempurl}
+
+
+\bibitem[Mikkil{\"a} and Kanniainen(2023)]%
+        {mikkila2023empirical}
+\bibfield{author}{\bibinfo{person}{Oskari Mikkil{\"a}} {and}
+  \bibinfo{person}{Juho Kanniainen}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Empirical Deep Hedging}.
+\newblock \bibinfo{journal}{\emph{Quantitative Finance}} \bibinfo{volume}{23},
+  \bibinfo{number}{1} (\bibinfo{year}{2023}), \bibinfo{pages}{111--122}.
+\newblock
+\href{https://doi.org/10.1080/14697688.2022.2136037}{doi:\nolinkurl{10.1080/14697688.2022.2136037}}
+
+
+\bibitem[Mueller et~al\mbox{.}(2024)]%
+        {mueller2024fast}
+\bibfield{author}{\bibinfo{person}{Konrad Mueller}, \bibinfo{person}{Amira
+  Akkari}, \bibinfo{person}{Lukas Gonon}, {and} \bibinfo{person}{Ben Wood}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{Fast Deep Hedging with Second-Order Optimization}.
+  In \bibinfo{booktitle}{\emph{Proceedings of the 5th ACM International
+  Conference on AI in Finance}}. \bibinfo{publisher}{Association for Computing
+  Machinery}, \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{319--327}.
+\newblock
+\href{https://doi.org/10.1145/3677052.3698604}{doi:\nolinkurl{10.1145/3677052.3698604}}
+
+
+\bibitem[Murray et~al\mbox{.}(2022)]%
+        {murray2022continuous}
+\bibfield{author}{\bibinfo{person}{Phillip Murray}, \bibinfo{person}{Ben Wood},
+  \bibinfo{person}{Hans Buehler}, \bibinfo{person}{Magnus Wiese}, {and}
+  \bibinfo{person}{Mikko~S. Pakkanen}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{Deep Hedging: Continuous Reinforcement Learning for
+  Hedging of General Portfolios across Multiple Risk Aversions}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 3rd ACM International Conference
+  on AI in Finance}}. \bibinfo{publisher}{Association for Computing Machinery},
+  \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{361--368}.
+\newblock
+\href{https://doi.org/10.1145/3533271.3561731}{doi:\nolinkurl{10.1145/3533271.3561731}}
+
+
+\bibitem[Qiao and Wan(2024)]%
+        {qiao2024enhancing}
+\bibfield{author}{\bibinfo{person}{Chunhui Qiao} {and}
+  \bibinfo{person}{Xiangwei Wan}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \bibinfo{title}{Enhancing Black--Scholes Delta Hedging via Deep
+  Learning}.
+\newblock
+\shownote{arXiv:2407.19367, version 2}.
+\newblock
+\href{https://doi.org/10.48550/arXiv.2407.19367}{doi:\nolinkurl{10.48550/arXiv.2407.19367}}
+
+
+\bibitem[Tancik et~al\mbox{.}(2020)]%
+        {tancik2020fourier}
+\bibfield{author}{\bibinfo{person}{Matthew Tancik}, \bibinfo{person}{Pratul~P.
+  Srinivasan}, \bibinfo{person}{Ben Mildenhall}, \bibinfo{person}{Sara
+  Fridovich-Keil}, \bibinfo{person}{Nithin Raghavan}, \bibinfo{person}{Utkarsh
+  Singhal}, \bibinfo{person}{Ravi Ramamoorthi}, \bibinfo{person}{Jonathan~T.
+  Barron}, {and} \bibinfo{person}{Ren Ng}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Fourier Features Let Networks Learn High Frequency
+  Functions in Low Dimensional Domains}. In \bibinfo{booktitle}{\emph{Advances
+  in Neural Information Processing Systems}}, Vol.~\bibinfo{volume}{33}.
+  \bibinfo{publisher}{Curran Associates, Inc.}, \bibinfo{address}{Red Hook, NY,
+  USA}, \bibinfo{pages}{7537--7547}.
+\newblock
+\urldef\tempurl%
+\url{https://proceedings.neurips.cc/paper/2020/hash/55053683268957697aa39fba6f231c68-Abstract.html}
+\showURL{%
+\tempurl}
+
+
+\bibitem[Zernikov(2026)]%
+        {zernikov2026what}
+\bibfield{author}{\bibinfo{person}{Kirill Zernikov}.}
+  \bibinfo{year}{2026}\natexlab{}.
+\newblock \bibinfo{title}{What Does Deep Hedging Actually Learn? Delta
+  Corrections, Regime Fragility, and Symbolic Distillation}.
+\newblock
+\shownote{arXiv:2605.21696}.
+\newblock
+\href{https://doi.org/10.48550/arXiv.2605.21696}{doi:\nolinkurl{10.48550/arXiv.2605.21696}}
+
+
+\end{thebibliography}

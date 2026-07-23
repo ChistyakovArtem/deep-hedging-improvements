@@ -1,0 +1,101 @@
+[project]
+name = "icaif26-stage1-heston"
+version = 1
+selection_rule = "lowest public entropic_risk; aggregate across eight paired training seeds"
+private_policy = "private is evaluated only for mathematical competitors, vanilla DH, and the public-selected best DH"
+
+[market]
+model = "heston"
+scheme = "full_truncation_euler"
+S0 = 100.0
+K = 100.0
+v0 = 0.04
+r = 0.01
+kappa = 2.0
+theta = 0.04
+xi = 0.3
+rho = -0.7
+T = 1.0
+N = 30
+transaction_cost = 0.001
+accounting = "discounted"
+payoff = "european_call"
+
+[objective]
+name = "entropic_risk"
+risk_aversion = 1.0
+pnl_scale = 1.0
+score_direction = "higher"
+score_definition = "score = -entropic_risk"
+
+[leaderboards.public]
+name = "public"
+n_paths = 100000
+seed = 20260724
+paths_sha256 = "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b"
+allowed_uses = ["checkpoint_selection", "hyperparameter_selection", "reporting"]
+
+[leaderboards.private]
+name = "private"
+n_paths = 100000
+seed = 20260725
+paths_sha256 = "e5223984376a2491b7e98f709eade321de34976928cf3f8bde287a46f76ac035"
+allowed_uses = ["final_evaluation_only"]
+
+[training]
+n_epochs = 10000
+paths_per_epoch = 3000
+validation_interval = 200
+learning_rate = 0.001
+optimizer = "adam"
+hidden_dims = [64, 32]
+n_frequencies = 16
+save_predictions = true
+
+[features]
+names = ["log_moneyness", "variance_ratio", "time_ratio", "previous_hedge"]
+periodic_names = ["log_moneyness", "variance_ratio", "time_ratio"]
+use_running_pnl = false
+
+[search]
+seeds = [0, 1, 2, 3, 4, 5, 6, 7]
+architectures = ["mlp", "paf_shared", "paf_featurewise"]
+paf_sigmas = [0.1, 0.3, 1.0, 3.0, 10.0]
+frequency_convention = "2pi"
+periodic_include_linear = false
+
+[math_deltas]
+cf_n_quad = 256
+cf_phi_min = 1e-8
+cf_phi_max = 200.0
+cf_batch_size = 8192
+no_trade_widths = [0.0, 0.005, 0.01, 0.02, 0.04, 0.08, 0.16]
+# RMLP-style guided public search:
+# initial [0, .5, 1, 2], geometric boundary extension through 128,
+# then a local refinement around the public optimum.
+leland_scales = [
+    0.0,
+    0.5,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    6.0,
+    8.0,
+    12.0,
+    14.0,
+    15.0,
+    16.0,
+    17.0,
+    18.0,
+    19.0,
+    20.0,
+    21.0,
+    22.0,
+    24.0,
+    32.0,
+    48.0,
+    64.0,
+    96.0,
+    128.0,
+]

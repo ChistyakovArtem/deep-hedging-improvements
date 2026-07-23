@@ -1,0 +1,9 @@
+{
+  "selected": {
+    "heston_mv_no_trade": "heston_mv_no_trade-width-0.04",
+    "leland_local_vol": "leland_local_vol-scale-18"
+  },
+  "selection_direction": "lower",
+  "selection_leaderboard": "public",
+  "selection_metric": "entropic_risk"
+}

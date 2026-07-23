@@ -1,0 +1,602 @@
+% Anonymous ICAIF submission by default; set to 1 for an attributed draft.
+\def\attributedversion{0}
+\ifnum\attributedversion=1
+  \documentclass[sigconf,balance=false]{acmart}
+\else
+  \documentclass[sigconf,anonymous,balance=false]{acmart}
+\fi
+
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+
+% Review metadata follows the official ICAIF 2026 call.
+\setcopyright{none}
+\settopmatter{printacmref=true}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+
+\acmConference[ICAIF '26]{ACM International Conference on AI in Finance}
+  {November 14--17, 2026}{Milan, Italy}
+\acmYear{2026}
+\copyrightyear{2026}
+
+\newcommand{\methodname}{DeepHedger-Default}
+\newcommand{\todoresult}[1]{\textit{[Result pending: #1]}}
+\newcommand{\softmin}{\operatorname{SoftMin}}
+\newcommand{\cvar}{\operatorname{CVaR}}
+
+\title{\methodname: Guided Recipe Search for Deep Hedging under Market Frictions}
+
+\author{Artem Chistyakov}
+\authornote{Corresponding author.}
+\email{artemchistyakov03@gmail.com}
+\affiliation{%
+  \institution{HSE University}
+  \city{Moscow}
+  \country{Russia}
+}
+\affiliation{%
+  \institution{Yandex Research}
+  \city{Moscow}
+  \country{Russia}
+}
+
+\begin{abstract}
+Deep hedging replaces a hand-designed hedge with a policy trained end to end
+against a risk functional, but reported performance is sensitive to representation,
+initialization, state design, and optimization.  We study a different question from
+proposing another isolated architecture: can a small, reproducible sequence of
+validated choices turn the standard pathwise deep-hedging policy into a strong
+default?  Our protocol is inspired by recipe-oriented tabular learning.  It adds
+one component family at a time---periodic numerical embeddings, residual prediction
+around a model hedge, running profit and loss, modern optimizers, and stochastic
+exploration---and freezes each choice using a development panel that is disjoint
+from the final benchmark.  The selected policy is then compared with
+information-matched analytical and numerical hedges on one-factor-at-a-time
+slices of GBM, Heston, and rough-Bergomi markets, two payoffs, transaction
+costs, moneyness, and rebalancing frequencies.  The main comparator under
+Heston is the local minimum-variance delta, not merely the price delta.  We
+specify paired multi-seed evaluation, dimensionless risk normalization,
+tail-risk and turnover metrics, and a one-class software interface.
+Preliminary single-execution Heston results motivate the study but are not
+treated as confirmatory evidence; the paper's claims are intentionally
+conditional on the locked multi-seed benchmark.
+\end{abstract}
+
+\ccsdesc[500]{Computing methodologies~Reinforcement learning}
+\ccsdesc[300]{Computing methodologies~Neural networks}
+\ccsdesc[300]{Applied computing~Economics}
+
+\keywords{deep hedging, transaction costs, stochastic volatility, numerical
+embeddings, minimum-variance delta, reproducible benchmarking}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+Deep Hedging trains a parametric trading policy directly against a portfolio
+risk measure and can incorporate transaction costs, liquidity restrictions, and
+other non-classical frictions \cite{buehler2019deep}.  This flexibility makes it
+an attractive alternative to deriving a new control solution for every market
+and contract.  It also creates a practical ambiguity: two implementations of
+``Deep Hedging'' can differ in input scaling, state variables, output
+parameterization, initialization, optimizer, and exploration, with each choice
+materially changing convergence.
+
+The usual response is to introduce one more learning algorithm.  We instead
+treat the complete training stack as the object of study.  This follows the
+recipe-oriented logic of RealMLP, where carefully validated defaults and broad
+evaluation made a simple model competitive without per-dataset tuning
+\cite{holzmueller2024better}.  In hedging, the analogous deliverable is a
+policy that an end user can instantiate once, while market dynamics, payoff,
+and risk preferences remain explicit configuration.
+
+This framing raises a stronger baseline requirement.  The plain Heston price
+delta, $\partial C/\partial S$, ignores the locally hedgeable component of
+variance shocks when spot and variance are correlated.  A stock-only
+minimum-variance (MV) hedge corrects this through variance sensitivity
+\cite{hull2017optimal}.  Therefore, beating a Black--Scholes or price-delta
+baseline is not sufficient evidence for a strong recipe.  The central empirical
+question is whether the recipe matches or improves upon the best
+information-matched mathematical hedge reliably, and where it fails, rather
+than whether it wins in one favorable training run.
+
+The intended contributions are:
+
+\begin{enumerate}
+  \item a guided, stagewise search protocol that attributes gains to
+  representation, anchor, state, optimizer, and stochasticity while keeping the
+  final benchmark locked;
+  \item a fair baseline suite centered on the MV delta and cost-aware
+  no-trade policies, with the same state information available to learned and
+  mathematical hedges;
+  \item a multi-market, multi-contract benchmark using paired seeds and
+  reporting risk, tail loss, turnover, fees, and deviation from the MV hedge;
+  and
+  \item a reusable \texttt{DeepHedger} class whose selected recipe is exposed as
+  a documented default rather than notebook-specific code.
+\end{enumerate}
+
+The current manuscript is a mark-0 draft.  It fixes the claims, experimental
+questions, table structure, and evidence standard before the confirmatory runs.
+Numerical values in Section~\ref{sec:preliminary} are preliminary diagnostics
+with explicit provenance.
+
+\section{Related Work}
+
+\paragraph{Deep and reinforcement-learning hedges.}
+Buehler et al.\ formulate hedging with frictions as direct optimization of
+convex risk measures over neural policies \cite{buehler2019deep}.  Subsequent
+work studies continuous-control and distributional objectives
+\cite{cao2021deep}, actor--critic formulations that cover multiple portfolios
+or risk aversions \cite{murray2022continuous,buehler2024bellman}, and policies
+trained on empirical intraday data \cite{mikkila2023empirical}.  These works
+establish that learning can outperform conventional deltas in suitable
+settings.  They do not remove the need for controlled recipe selection against
+the strongest model-consistent hedge.
+
+\paragraph{Structured policies and optimization.}
+Residual learning around a Black--Scholes delta can reduce the complexity of
+the learned function \cite{qiao2024enhancing}.  K-FAC approximates neural
+curvature with tractable Kronecker factors \cite{martens2015kfac}; recent work
+applies related second-order structure to deep hedging and reports faster
+optimization on a difficult cliquet problem \cite{mueller2024fast}.  The
+current study asks whether residual anchors and curvature-aware optimization
+remain useful after representation and state design are controlled.
+
+\paragraph{Recipe transfer from tabular learning.}
+Numerical feature embeddings with periodic activations can improve simple MLPs
+\cite{gorishniy2022embeddings}; Fourier features provide a related mechanism
+for representing high-frequency low-dimensional functions
+\cite{tancik2020fourier}.  More recently, a benchmark of fifteen optimizers on
+seventeen tabular datasets identified Muon, Schedule-Free AdamW, and AdamW with
+an exponential moving average as strong candidates
+\cite{gorishniy2026optimizers}; Schedule-Free learning itself removes the need
+to prescribe the stopping horizon in advance \cite{defazio2024schedulefree}.
+These results motivate candidates, but do not imply that their ranking transfers
+to a path-dependent entropic hedging objective.  That transfer is an empirical
+question.
+
+\section{Hedging Problem}
+
+We work on a discrete grid $0=t_0<\dots<t_N=T$.  Let
+$B_t=\exp(rt)$, $\bar S_t=B_t^{-1}S_t$, and
+$\bar H=B_T^{-1}H(S_T)$.  Before the move from $t_i$ to $t_{i+1}$, a policy
+chooses $\delta_i$ shares.  In discounted units, with proportional cost $c$
+and $\delta_{-1}=0$, terminal hedging profit and loss is
+\begin{equation}
+ \bar Z^\delta =
+ \sum_{i=0}^{N-1}\delta_i(\bar S_{t_{i+1}}-\bar S_{t_i})
+ -c\sum_{i=0}^{N-1}\bar S_{t_i}\lvert\delta_i-\delta_{i-1}\rvert
+ -\bar H.
+\label{eq:pnl}
+\end{equation}
+An initial option premium would shift every strategy by the same constant and
+does not affect their ranking under CARA/entropic risk, although it must be
+restored for economically interpretable wealth levels.  Each contract declares
+an ex-ante currency scale $s_H$: underlying notional for a vanilla call and
+cash payout for a digital.  We set $\widetilde Z=\bar Z/s_H$ and use
+dimensionless risk aversion $\alpha$.  This rule is fixed before simulation,
+never estimated from test PnL, and prevents raw digital and vanilla notionals
+from silently changing risk preferences.  The training objective is
+\begin{equation}
+ \mathcal{L}_\alpha(\delta)
+ = \softmin_\alpha(\widetilde Z^\delta)
+ = \frac{1}{\alpha}\log
+   \mathbb{E}\!\left[\exp(-\alpha\widetilde Z^\delta)\right],
+ \qquad \alpha>0,
+\label{eq:softmin}
+\end{equation}
+where lower is better.  We do not describe this quantity as CVaR: final
+evaluation reports lower-tail $\cvar_{95}$ and $\cvar_{99}$ separately.
+
+\paragraph{CARA and running PnL.}
+Entropic utility has constant absolute risk aversion: adding current wealth or
+a fixed premium translates the certainty equivalent but does not change the
+optimal action.  Running PnL is therefore not justified as wealth-dependent
+risk preference.  It can help only as a proxy for omitted path information,
+finite-sample optimization, or a state variable introduced by the precise
+accounting/control formulation.  We triangulate the mechanism using
+independent retraining with the feature on/off, inference-time masking, and a
+fixed-state diagnostic that holds $(t_i,S_i,q_i,\delta_{i-1})$ constant while
+sweeping $\widetilde G_i$ over empirical quantiles.  A reproducible seeded gain
+may identify omitted history or an optimization scaffold, in which case the
+feature is retained and its mechanism characterized.  Wealth-dependent
+behavior, however, requires explicit constraints or a non-CARA objective.
+
+\subsection{Information-matched mathematical hedges}
+
+In undiscounted units, the Heston dynamics are
+\begin{align}
+ dS_t &= rS_t\,dt + S_t\sqrt{v_t}\,dW_t^S,\\
+ dv_t &= \kappa(\theta-v_t)\,dt
+       + \xi\sqrt{v_t}\,dW_t^v,\qquad
+ d\langle W^S,W^v\rangle_t=\rho\,dt,
+\end{align}
+let $C$ denote the option price as a function of time, spot, and variance.
+We compute it from the characteristic-function representation
+\cite{heston1993closed}.  Minimizing the instantaneous
+conditional variance of $dC-\delta\,dS$ gives
+\begin{equation}
+ \delta_{\mathrm{MV}}
+ = C_S + \frac{\rho\xi}{S}C_v .
+ \label{eq:mvdelta}
+\end{equation}
+The implementation evaluates $C$, $C_S$, and $C_v$ in batched Torch code using
+fixed Gauss--Legendre quadrature and automatic differentiation.  Crucially, the
+network observes $v_t$ whenever the baseline uses it.  The comparison therefore
+does not give the learned policy an unobserved-volatility advantage.
+
+Transaction costs can make continuous retargeting to
+Equation~\eqref{eq:mvdelta} suboptimal.  We consequently include a
+validation-tuned no-trade band around the MV delta.  ``Best mathematical
+baseline'' means the predeclared, validation-selected member of this baseline
+family; it never means choosing the best test-set row after evaluation.  Under
+rough Bergomi, Keller-Ressel derives analytic expressions for the
+variance-optimal strategy and its mean-square error
+\cite{bayer2016rough,kellerressel2022bartlett}.  We include rough Bergomi in
+the headline benchmark only after the simulator's filtration and state
+representation are matched to that result and our implementation agrees with
+both the analytic expression and a converged conditional-covariance
+calculation.  Otherwise those rows are deferred rather than compared against a
+weak proxy.
+
+\section{\methodname}
+
+\subsection{One policy class, explicit configuration}
+
+At time $t_i$, the deterministic policy consumes
+\begin{equation}
+ x_i =
+ [\,\log(S_{t_i}/K),\ q_i,\ \tau_i/T,\ \delta_{i-1},\
+ \mathbf{1}_{\mathrm{PnL}}\widetilde{G}_i\,],
+ \label{eq:features}
+\end{equation}
+where $q_i$ contains market state variables (for example $v_i$), $\tau_i$ is
+time to maturity, and $\widetilde{G}_i$ is normalized running portfolio PnL.
+Log-moneyness replaces raw spot to make scale transfer an explicit inductive
+bias.  The public class exposes each term in Equation~\eqref{eq:features}, the
+architecture, anchor, optimizer, and stochastic trainer as hyperparameters;
+the paper ultimately selects one default configuration.
+
+Two periodic representations are compared with a plain MLP.  A matrix-mixed
+embedding uses
+\[
+ e_{\mathrm{mix}}(x)=[\sin(xB),\cos(xB)],
+\]
+while the feature-wise form assigns frequencies independently,
+\[
+ e_{\mathrm{fw}}(x_j)=
+ [\sin(2\pi x_j c_j),\cos(2\pi x_j c_j)].
+\]
+Both frequency parameters are trainable.  Initial scale $\sigma$, number of
+frequencies, and the inclusion of the linear projection are tuned inside the
+representation stage, rather than fixed from a different application domain.
+
+The output can be direct or residual:
+\begin{equation}
+ \delta_i = \delta_{\mathrm{anchor}}(t_i,S_{t_i},q_i)
+            + f_\theta(x_i).
+ \label{eq:residual}
+\end{equation}
+The candidate anchors are a local-GBM delta and the strongest
+information-matched model hedge.  Zero initialization of the last layer makes
+the initial policy exactly equal to the anchor.  This separates learning a
+correction from rediscovering the full hedge.
+
+\subsection{Guided search, not a combinatorial sweep}
+
+\begin{figure*}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{2.5pt}
+  \begin{tabular}{@{}c@{\ $\rightarrow$\ }c@{\ $\rightarrow$\ }c@{\ $\rightarrow$\ }c@{\ $\rightarrow$\ }c@{\ $\rightarrow$\ }c@{}}
+    \fbox{\parbox[c][1.25cm][c]{0.125\textwidth}{\centering
+      \textbf{0 Base}\\MLP\\Adam}} &
+    \fbox{\parbox[c][1.25cm][c]{0.125\textwidth}{\centering
+      \textbf{1 Embed}\\mixed / feature-wise\\$\sigma$, frequencies}} &
+    \fbox{\parbox[c][1.25cm][c]{0.125\textwidth}{\centering
+      \textbf{2 Anchor}\\direct / local GBM\\/ model MV}} &
+    \fbox{\parbox[c][1.25cm][c]{0.125\textwidth}{\centering
+      \textbf{3 State}\\running PnL\\normalization}} &
+    \fbox{\parbox[c][1.25cm][c]{0.125\textwidth}{\centering
+      \textbf{4 Optimize}\\Adam(W), K-FAC\\SF, EMA, Muon}} &
+    \fbox{\parbox[c][1.25cm][c]{0.125\textwidth}{\centering
+      \textbf{5 Explore}\\deterministic /\\MaxEnt / SAC}}
+  \end{tabular}
+  \vspace{3pt}
+
+  \centering\footnotesize
+  Five paired seeds on a fixed development panel $\longrightarrow$
+  freeze the winner $\longrightarrow$
+  ten new seeds on the locked benchmark
+  \caption{The guided-search ladder.  At stage $k$, only the displayed
+  component family changes; all decisions from stages $<k$ are frozen.  The
+  final benchmark is not queried during recipe construction.}
+  \Description{A left-to-right sequence of six boxes: base MLP, numerical
+  embedding, residual anchor, running-PnL state, optimizer, and stochastic
+  exploration.  Five development seeds select each stage and ten fresh seeds
+  evaluate the final frozen recipe.}
+  \label{fig:ladder}
+\end{figure*}
+
+Figure~\ref{fig:ladder} replaces a full Cartesian grid with an auditable
+sequence of conditional questions.  Each stage uses common random numbers
+across candidates and aggregates ranks across a fixed development panel.  A
+candidate is promoted only if its paired mean improvement is positive and its
+uncertainty is acceptable; otherwise the incumbent is retained.  The selection
+log records all candidates, so negative transfer remains visible.
+
+Greedy search can miss interactions.  We therefore reserve a small
+interaction audit after Stage~5: remove each selected component once, and test
+the two most plausible pairwise interactions (embedding--anchor and
+anchor--PnL).  This retains the interpretability and compute advantages of
+guided search without pretending that component effects are additive.
+
+\paragraph{Optimizer stage.}
+The candidate set is Adam, AdamW, K-FAC, Schedule-Free AdamW, AdamW with
+weight EMA, and Muon \cite{jordan2024muon}.  The 2026 tabular benchmark is a
+motivation for including the last three, not evidence that they will win in
+hedging.  Every optimizer
+receives a comparable learning-rate and regularization budget; wall-clock time
+and simulator paths are reported alongside epochs.
+
+\paragraph{Stochastic stage.}
+The current prototype adds Gaussian action noise and an annealed entropy bonus
+to the pathwise objective.  This is a maximum-entropy pathwise policy, not full
+Soft Actor-Critic: SAC is specifically an off-policy actor--critic algorithm
+with a learned critic \cite{haarnoja2018sac}.  The final paper will use the label
+\emph{SAC} only for an implementation with critic, targets, and replay.  The
+stage tunes initial action standard deviation, entropy strength, and annealing;
+it compares the deterministic incumbent, the pathwise MaxEnt policy, and full
+SAC if the latter passes independent smoke tests.
+
+\section{Experimental Protocol}
+\label{sec:protocol}
+
+\subsection{Development and locked benchmark}
+
+Recipe construction uses a predeclared, stratified Heston development panel
+covering low/high vol-of-vol, zero/nonzero cost, in/out-of-the-money calls, and
+short/long rebalancing grids.  The panel is fixed before Stage~1.  Five fully
+seeded runs per candidate are used during selection.  Torch CPU/CUDA, NumPy,
+initialization, simulator streams, and stochastic actions all receive explicit
+seeds.
+
+The frozen recipe is then evaluated with ten fresh seeds on the isolated
+benchmark slices below.  This is deliberately not the Cartesian product of all
+levels.  Within each market, the reference cell is an at-the-money call with
+10-bp costs, $N=60$, and $\alpha=1$; one axis changes at a time while every
+other coordinate stays at its reference.  The exact slices and a small,
+predeclared cross-factor stress set are frozen before final evaluation.
+
+\begin{table}[t]
+  \caption{Locked one-factor benchmark slices around a reference cell; these
+  levels do not define a Cartesian product.  Rough-Bergomi rows are gated on
+  reference-hedge validation.}
+  \label{tab:matrix}
+  \small
+  \begin{tabular}{@{}p{0.18\columnwidth}p{0.22\columnwidth}p{0.48\columnwidth}@{}}
+    \toprule
+    Axis & Reference & Isolated slice \\
+    \midrule
+    Market & Heston, $\xi=0.3$ & GBM; Heston
+      $\xi\in\{0.1,0.3,0.5\}$; rough Bergomi \\
+    Payoff & European call & call; digital call \\
+    $K/S_0$ & $1.0$ & $\{0.9,1.0,1.1\}$ \\
+    Cost & 10 bp & $\{0,5,10,30\}$ bp \\
+    Steps $N$ & 60 & $\{30,60,120,300\}$ \\
+    Risk $\alpha$ & 1 & prespecified dimensionless sensitivities \\
+    Seeds & 10 & paired evaluation paths within every seed \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The market slice follows complete $\rightarrow$ Markov stochastic volatility
+$\rightarrow$ non-Markov rough volatility.  GBM with zero costs is a mandatory
+sanity check: with finer rebalancing, the
+learned hedge should approach the Black--Scholes hedge
+\cite{black1973pricing}.  Heston is the main controlled incomplete market.
+Rough Bergomi tests whether a recipe selected in a Markov setting transfers to
+history-dependent volatility.  A Bates jump-diffusion
+\cite{bates1996jumps} is a useful optional stress test, but will not displace
+the three primary market families unless compute and page budget permit.
+
+\subsection{Baselines, metrics, and statistical reporting}
+
+Every applicable slice cell contains: no hedge; model price delta; local MV delta;
+validation-tuned MV no-trade band; a converged numerical conditional-MV hedge
+when no analytic counterpart exists; standard Deep Hedging with the base MLP;
+and the frozen \methodname.  All policies use the same simulated state
+information and trading dates.
+
+The primary endpoint is test $\softmin_\alpha$ of dimensionless PnL.
+Secondary endpoints are normalized PnL mean
+and standard deviation, lower-tail $\cvar_{95}$ and $\cvar_{99}$, mean fees,
+turnover $\sum_i|\delta_i-\delta_{i-1}|$, training wall time, and
+\begin{equation}
+ D_{\mathrm{MV}} =
+ \frac{\mathbb{E}\sum_i S_{t_i}
+       (\delta_i-\delta_{\mathrm{MV},i})^2}
+      {\mathbb{E}\sum_i S_{t_i}},
+\end{equation}
+which measures economically weighted deviation from the local MV hedge.
+Results are mean $\pm$ standard deviation over seeds.  The main comparison also
+reports the paired seed-level gap and a 95\% bootstrap confidence interval.
+Tables retain every prespecified benchmark cell; aggregate ranks cannot hide a
+failed market or payoff.
+
+\begin{table*}[t]
+  \caption{Planned component-isolating ablation.  Each row changes one stage
+  relative to its incumbent.  This table will be populated from the
+  development panel, not from the final benchmark.}
+  \label{tab:ablation}
+  \small
+  \begin{tabular}{@{}llcccccc@{}}
+    \toprule
+    Stage & Candidate & $\softmin$ & Paired gap & $\cvar_{99}$ & Turnover &
+    Time & Decision \\
+    \midrule
+    1 & Mixed vs.\ feature-wise periodic; $\sigma$ HPO
+      & TBD & TBD & TBD & TBD & TBD & TBD \\
+    2 & Direct vs.\ local-GBM vs.\ MV residual
+      & TBD & TBD & TBD & TBD & TBD & TBD \\
+    3 & Running PnL off/on
+      & TBD & TBD & TBD & TBD & TBD & TBD \\
+    4 & Adam(W), K-FAC, SF-AdamW, AdamW+EMA, Muon
+      & TBD & TBD & TBD & TBD & TBD & TBD \\
+    5 & Deterministic, MaxEnt pathwise, full SAC
+      & TBD & TBD & TBD & TBD & TBD & TBD \\
+    audit & Leave-one-component-out and two interactions
+      & TBD & TBD & TBD & TBD & TBD & TBD \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\section{Preliminary Evidence}
+\label{sec:preliminary}
+
+Table~\ref{tab:preliminary} is included to test the result narrative and table
+design, not to establish the contribution.  It comes from one July 2026 Heston
+notebook execution with $S_0=K=100$, $v_0=\theta=0.04$, $r=0.01$,
+$\kappa=2$, $\xi=0.1$, $\rho=-0.7$, $T=1$, $N=30$, $a=1$, 5,000 held-out
+paths, and 10,000 training epochs.  Evaluation paths were initialized from
+NumPy seed 42, but Torch initialization and all stochastic sources were not
+fully seeded.  There is therefore no valid seed-level uncertainty estimate.
+
+\begin{table}[t]
+  \caption{Preliminary single-execution Heston test SoftMin (lower is better).
+  Values are diagnostics only; ``periodic'' is the existing matrix-mixed
+  embedding, and the residual anchor is a local-GBM proxy rather than MV.}
+  \label{tab:preliminary}
+  \small
+  \begin{tabular}{@{}lrr@{}}
+    \toprule
+    Method & 0 bp & 10 bp \\
+    \midrule
+    Heston price delta & 9.2715 & 9.5526 \\
+    Heston MV delta & 9.1966 & 9.4879 \\
+    DH, plain MLP & 10.0053 & 10.1567 \\
+    DH, periodic & 9.0135 & 9.3076 \\
+    DH, periodic residual & \textbf{8.9572} & \textbf{9.1595} \\
+    \quad{}+ K-FAC & 8.9613 & 9.2549 \\
+    \quad{}+ Muon & 9.0665 & 9.3094 \\
+    MaxEnt pathwise policy & 8.9815 & 9.2014 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The notebook simulates $r=0.01$ but calls the backtest without cash-account
+accrual and does not first discount paths and payoff.  These values therefore
+inherit an unresolved accounting inconsistency in addition to their seed
+limitations.  They are diagnostics only and will be regenerated using the
+coherent convention in Equation~\eqref{eq:pnl}.
+
+Three observations shape the confirmatory study.  First, the plain MLP is not a
+strong baseline in this cell.  Second, periodic representation and residual
+prediction appear more consequential than changing the optimizer.  Third,
+K-FAC is not uniformly best in the latest provenance-clear run, contrary to an
+earlier notebook result.  This reversal is precisely why a single-seed
+``best-method'' story is not defensible.
+
+The MV comparison is not explained by a coarse characteristic-function
+integration in this cell.  In a separate fixed-path budget sweep, 256
+Gauss--Legendre nodes at truncation 200 had hedge-ratio RMSE
+$2.34\times10^{-7}$ and maximum absolute deviation $7.92\times10^{-5}$
+relative to an 8,192-node, truncation-400 reference; SoftMin was stable at the
+reported precision.  This check must be repeated over the final state grid and
+market parameters.
+
+\begin{table*}[t]
+  \caption{Headline benchmark table reserved for the frozen recipe.  Each
+  entry will be mean $\pm$ standard deviation over ten fresh seeds; the gap is
+  paired \methodname{} minus the validation-selected mathematical baseline.}
+  \label{tab:headline}
+  \small
+  \begin{tabular}{@{}llcccccc@{}}
+    \toprule
+    Market & Payoff & Best mathematical & Base DH & \methodname &
+    Paired gap & 95\% CI & $\cvar_{99}$ gap \\
+    \midrule
+    GBM & call & TBD & TBD & TBD & TBD & TBD & TBD \\
+    GBM & digital & TBD & TBD & TBD & TBD & TBD & TBD \\
+    Heston & call & TBD & TBD & TBD & TBD & TBD & TBD \\
+    Heston & digital & TBD & TBD & TBD & TBD & TBD & TBD \\
+    rough Bergomi & call & TBD & TBD & TBD & TBD & TBD & TBD \\
+    rough Bergomi & digital & TBD & TBD & TBD & TBD & TBD & TBD \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\section{Reproducibility and Software Contract}
+
+Every run will be generated from a versioned configuration containing market,
+payoff, method, and seed.  A per-run entry point writes a machine-readable
+report, status, and completion marker; aggregation reads only reports and
+produces paper tables without notebook copy-and-paste.  Repeating a completed
+configuration is idempotent.  The release will include:
+
+\begin{itemize}
+  \item deterministic seed handling for NumPy, Torch, CUDA, simulator streams,
+  weight initialization, and stochastic actions;
+  \item unit tests comparing batched Heston price/MV deltas with the retained
+  SciPy reference on a grid of spot, variance, and maturity;
+  \item an accounting equivalence test showing that discounted-path PnL and an
+  undiscounted self-financing cash account produce the same result;
+  \item configuration manifests for the development ladder and locked
+  benchmark, plus the exact aggregation script; and
+  \item a pip-installable \texttt{DeepHedger} whose constructor accepts the
+  same explicit hyperparameters used by the experiments and whose
+  \texttt{recipe="default"} resolves to the frozen selection.
+\end{itemize}
+
+The default should be a named, immutable recipe version.  Adding every
+experimental branch to one class is valid only if configuration validation,
+serialization, and backward compatibility are tested; otherwise a nominally
+simple API merely hides irreproducible notebook state.
+
+\section{Limitations and Scope}
+
+The study trains a policy for a specified simulated market and contract.  It
+does not claim a single amortized hedge for arbitrary portfolios, robustness to
+market misspecification, or real-data superiority.  Those are separate
+questions.  The greedy search is compute-efficient but can miss higher-order
+component interactions; the interaction audit only partially addresses this.
+Analytical and nested-Monte-Carlo baselines also encode model knowledge that
+may not be available in deployment, but this is deliberate: a method should
+first be judged against the strongest fair oracle in simulation before
+weaker-information comparisons are used.
+
+Simulation access can make end-to-end pathwise gradients more sample-efficient
+than model-free RL, so SAC is not expected to win by default.  A negative SAC
+result remains informative if implementation and tuning are credible.  Finally,
+recent empirical work shows that learned delta corrections can be regime
+fragile \cite{zernikov2026what}; interpretability metrics and broad simulated
+coverage reduce, but do not eliminate, that deployment risk.
+
+\section{Conclusion}
+
+This paper is designed around a claim that can fail cleanly.  A useful
+\methodname{} must survive seeded selection, match or improve aggregate
+performance against a strong information-matched hedge on a locked and
+heterogeneous benchmark, characterize the cells in which it fails, and expose
+the chosen recipe as reproducible software.  It need not win every cell.  The
+current evidence is sufficient to motivate the guided search, but not to
+declare a winner.
+\todoresult{replace this paragraph with the confirmed cross-market finding and
+its uncertainty after the locked benchmark.}
+
+\section*{Generative AI Use Disclosure}
+
+OpenAI Codex was used to help organize and draft the mark-0 manuscript and to
+check the consistency of citations and repository evidence.  The human author
+is fully responsible for the scientific claims, experiments, citation
+verification, and final text.  This non-identifying section must remain visible
+in an anonymous review build unless the ICAIF 2026 policy explicitly prescribes
+another disclosure location or wording.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

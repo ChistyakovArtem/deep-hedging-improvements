@@ -1,0 +1,611 @@
+[
+  {
+    "entropic_risk": 12.809986829495157,
+    "fees_mean": 0.2237747004940361,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.456593897361275,
+    "loss_cvar_99": 15.351734072773844,
+    "method": {
+      "kind": "heston_cf_delta"
+    },
+    "method_name": "heston_cf_delta",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.376645758292677,
+    "pnl_std": 2.214726853434518,
+    "score": -12.809986829495157,
+    "turnover_mean": 2.259479291342497
+  },
+  {
+    "entropic_risk": 12.187789348582308,
+    "fees_mean": 0.2156040552390367,
+    "leaderboard": "public",
+    "loss_cvar_95": 12.813123700905265,
+    "loss_cvar_99": 14.824661077676597,
+    "method": {
+      "kind": "heston_mv_delta"
+    },
+    "method_name": "heston_mv_delta",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.362778570668699,
+    "pnl_std": 1.8213860532182042,
+    "score": -12.187789348582308,
+    "turnover_mean": 2.1581790689432623
+  },
+  {
+    "entropic_risk": 12.187789348582308,
+    "fees_mean": 0.2156040552390367,
+    "leaderboard": "public",
+    "loss_cvar_95": 12.813123700905265,
+    "loss_cvar_99": 14.824661077676597,
+    "method": {
+      "band_width": 0.0,
+      "kind": "heston_mv_no_trade"
+    },
+    "method_name": "heston_mv_no_trade-width-0",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.362778570668699,
+    "pnl_std": 1.8213860532182042,
+    "score": -12.187789348582308,
+    "turnover_mean": 2.1581790689432623
+  },
+  {
+    "entropic_risk": 12.083458421460398,
+    "fees_mean": 0.20312731356523933,
+    "leaderboard": "public",
+    "loss_cvar_95": 12.787541267610125,
+    "loss_cvar_99": 14.78360614147815,
+    "method": {
+      "band_width": 0.005,
+      "kind": "heston_mv_no_trade"
+    },
+    "method_name": "heston_mv_no_trade-width-0.005",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.350471626312734,
+    "pnl_std": 1.823044104055367,
+    "score": -12.083458421460398,
+    "turnover_mean": 2.034256781734228
+  },
+  {
+    "entropic_risk": 11.98842642623523,
+    "fees_mean": 0.19237020897179843,
+    "leaderboard": "public",
+    "loss_cvar_95": 12.771227001738628,
+    "loss_cvar_99": 14.754303186208933,
+    "method": {
+      "band_width": 0.01,
+      "kind": "heston_mv_no_trade"
+    },
+    "method_name": "heston_mv_no_trade-width-0.01",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.339788079617025,
+    "pnl_std": 1.8292493122512308,
+    "score": -11.98842642623523,
+    "turnover_mean": 1.9271670778352024
+  },
+  {
+    "entropic_risk": 11.81987327481067,
+    "fees_mean": 0.17452576807834208,
+    "leaderboard": "public",
+    "loss_cvar_95": 12.762312307474113,
+    "loss_cvar_99": 14.731677301161058,
+    "method": {
+      "band_width": 0.02,
+      "kind": "heston_mv_no_trade"
+    },
+    "method_name": "heston_mv_no_trade-width-0.02",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.322158586421013,
+    "pnl_std": 1.8534209365713998,
+    "score": -11.81987327481067,
+    "turnover_mean": 1.7490195238345863
+  },
+  {
+    "entropic_risk": 11.629454251545086,
+    "fees_mean": 0.14876375774867834,
+    "leaderboard": "public",
+    "loss_cvar_95": 12.837169973308194,
+    "loss_cvar_99": 14.793992543673063,
+    "method": {
+      "band_width": 0.04,
+      "kind": "heston_mv_no_trade"
+    },
+    "method_name": "heston_mv_no_trade-width-0.04",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.297689740302564,
+    "pnl_std": 1.9400969729085775,
+    "score": -11.629454251545086,
+    "turnover_mean": 1.4907284602642061
+  },
+  {
+    "entropic_risk": 11.946261875760174,
+    "fees_mean": 0.11799100259557367,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.297083519811846,
+    "loss_cvar_99": 15.237138259422768,
+    "method": {
+      "band_width": 0.08,
+      "kind": "heston_mv_no_trade"
+    },
+    "method_name": "heston_mv_no_trade-width-0.08",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.268783675723077,
+    "pnl_std": 2.222507834489625,
+    "score": -11.946261875760174,
+    "turnover_mean": 1.1799286000794174
+  },
+  {
+    "entropic_risk": 15.09912034121846,
+    "fees_mean": 0.08618748086065055,
+    "leaderboard": "public",
+    "loss_cvar_95": 15.147647992297902,
+    "loss_cvar_99": 17.47230096487375,
+    "method": {
+      "band_width": 0.16,
+      "kind": "heston_mv_no_trade"
+    },
+    "method_name": "heston_mv_no_trade-width-0.16",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.235524547103049,
+    "pnl_std": 3.0443373949186956,
+    "score": -15.09912034121846,
+    "turnover_mean": 0.8533450139936806
+  },
+  {
+    "entropic_risk": 11.979703476996091,
+    "fees_mean": 0.2279512870474905,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.207931574619524,
+    "loss_cvar_99": 14.92381173247224,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 0.0
+    },
+    "method_name": "leland_local_vol-scale-0",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.380833167324067,
+    "pnl_std": 2.051771264763033,
+    "score": -11.979703476996091,
+    "turnover_mean": 2.2768757307600977
+  },
+  {
+    "entropic_risk": 11.959732305952626,
+    "fees_mean": 0.22747447622157635,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.20875937174473,
+    "loss_cvar_99": 14.918641410507522,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 0.5
+    },
+    "method_name": "leland_local_vol-scale-0.5",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.38035622171402,
+    "pnl_std": 2.0522765543953203,
+    "score": -11.959732305952626,
+    "turnover_mean": 2.2720628057396413
+  },
+  {
+    "entropic_risk": 11.940496646087924,
+    "fees_mean": 0.22700479687139394,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.209939347389005,
+    "loss_cvar_99": 14.91417522697182,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 1.0
+    },
+    "method_name": "leland_local_vol-scale-1",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.379888262093068,
+    "pnl_std": 2.052919982273034,
+    "score": -11.940496646087924,
+    "turnover_mean": 2.26732273542285
+  },
+  {
+    "entropic_risk": 11.682651460296283,
+    "fees_mean": 0.21802465016245845,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.31058441345941,
+    "loss_cvar_99": 14.928805168334778,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 12.0
+    },
+    "method_name": "leland_local_vol-scale-12",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.371018940455913,
+    "pnl_std": 2.093696113590973,
+    "score": -11.682651460296283,
+    "turnover_mean": 2.1768466059172153
+  },
+  {
+    "entropic_risk": 14.410093826723648,
+    "fees_mean": 0.17623391869813204,
+    "leaderboard": "public",
+    "loss_cvar_95": 15.772326181278636,
+    "loss_cvar_99": 18.11904142953299,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 128.0
+    },
+    "method_name": "leland_local_vol-scale-128",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.332168709298372,
+    "pnl_std": 2.9283901427285497,
+    "score": -14.410093826723648,
+    "turnover_mean": 1.7589145020067694
+  },
+  {
+    "entropic_risk": 11.665214892496595,
+    "fees_mean": 0.21661445058152082,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.34028469975103,
+    "loss_cvar_99": 14.953336705218305,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 14.0
+    },
+    "method_name": "leland_local_vol-scale-14",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.36964003853798,
+    "pnl_std": 2.105051740796091,
+    "score": -11.665214892496595,
+    "turnover_mean": 2.162663157746792
+  },
+  {
+    "entropic_risk": 11.659377830383379,
+    "fees_mean": 0.21593015634030105,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.35624901215283,
+    "loss_cvar_99": 14.967830602701133,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 15.0
+    },
+    "method_name": "leland_local_vol-scale-15",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.368975454266073,
+    "pnl_std": 2.1110434641804474,
+    "score": -11.659377830383379,
+    "turnover_mean": 2.1557829438602925
+  },
+  {
+    "entropic_risk": 11.655367968664214,
+    "fees_mean": 0.21525905272074045,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.372885467195196,
+    "loss_cvar_99": 14.98423247475486,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 16.0
+    },
+    "method_name": "leland_local_vol-scale-16",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.36832124712944,
+    "pnl_std": 2.1172241097559725,
+    "score": -11.655367968664214,
+    "turnover_mean": 2.149036750626564
+  },
+  {
+    "entropic_risk": 11.653110083772647,
+    "fees_mean": 0.2146006498259306,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.390071833998983,
+    "loss_cvar_99": 15.001985835743236,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 17.0
+    },
+    "method_name": "leland_local_vol-scale-17",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.367681019458772,
+    "pnl_std": 2.1235796071935105,
+    "score": -11.653110083772647,
+    "turnover_mean": 2.1424196178889274
+  },
+  {
+    "entropic_risk": 11.652543090135763,
+    "fees_mean": 0.21395450676918032,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.407735229229788,
+    "loss_cvar_99": 15.02075687012115,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 18.0
+    },
+    "method_name": "leland_local_vol-scale-18",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.367056368441583,
+    "pnl_std": 2.1300968657432504,
+    "score": -11.652543090135763,
+    "turnover_mean": 2.1359268715906143
+  },
+  {
+    "entropic_risk": 11.653594976568352,
+    "fees_mean": 0.21332018726028504,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.425894257450695,
+    "loss_cvar_99": 15.040313763575597,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 19.0
+    },
+    "method_name": "leland_local_vol-scale-19",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.366443297657968,
+    "pnl_std": 2.13676368357915,
+    "score": -11.653594976568352,
+    "turnover_mean": 2.1295542635679245
+  },
+  {
+    "entropic_risk": 11.904187618705377,
+    "fees_mean": 0.22608461980596187,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.213425530836215,
+    "loss_cvar_99": 14.906709398542132,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 2.0
+    },
+    "method_name": "leland_local_vol-scale-2",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.378970554850103,
+    "pnl_std": 2.054603286918941,
+    "score": -11.904187618705377,
+    "turnover_mean": 2.2580386790108684
+  },
+  {
+    "entropic_risk": 11.656196736891653,
+    "fees_mean": 0.21269729598119858,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.444538640871068,
+    "loss_cvar_99": 15.060768788630194,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 20.0
+    },
+    "method_name": "leland_local_vol-scale-20",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.365841549522877,
+    "pnl_std": 2.143568549682777,
+    "score": -11.656196736891653,
+    "turnover_mean": 2.1232976207315923
+  },
+  {
+    "entropic_risk": 11.660285956408787,
+    "fees_mean": 0.2120854164195061,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.463644543925993,
+    "loss_cvar_99": 15.082196826344127,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 21.0
+    },
+    "method_name": "leland_local_vol-scale-21",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.365250829589367,
+    "pnl_std": 2.1505007170419472,
+    "score": -11.660285956408787,
+    "turnover_mean": 2.117152702635527
+  },
+  {
+    "entropic_risk": 11.665798878408884,
+    "fees_mean": 0.21148418434768917,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.483160539141561,
+    "loss_cvar_99": 15.104443311929465,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 22.0
+    },
+    "method_name": "leland_local_vol-scale-22",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.364671125411988,
+    "pnl_std": 2.157550296703824,
+    "score": -11.665798878408884,
+    "turnover_mean": 2.1111158178663256
+  },
+  {
+    "entropic_risk": 11.680834953080039,
+    "fees_mean": 0.2103122918251157,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.523334595471042,
+    "loss_cvar_99": 15.15040177851171,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 24.0
+    },
+    "method_name": "leland_local_vol-scale-24",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.363543182494642,
+    "pnl_std": 2.171964265728574,
+    "score": -11.680834953080039,
+    "turnover_mean": 2.09935184242487
+  },
+  {
+    "entropic_risk": 11.870700557331576,
+    "fees_mean": 0.2251887655924261,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.218301746564444,
+    "loss_cvar_99": 14.901262402415394,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 3.0
+    },
+    "method_name": "leland_local_vol-scale-3",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.378078588175775,
+    "pnl_std": 2.056783483461808,
+    "score": -11.870700557331576,
+    "turnover_mean": 2.249003083485365
+  },
+  {
+    "entropic_risk": 11.78607737460196,
+    "fees_mean": 0.20598815505973997,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.695976443825614,
+    "loss_cvar_99": 15.353301039704315,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 32.0
+    },
+    "method_name": "leland_local_vol-scale-32",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.359410640861988,
+    "pnl_std": 2.2326989291345525,
+    "score": -11.78607737460196,
+    "turnover_mean": 2.0559781468749048
+  },
+  {
+    "entropic_risk": 11.83993929129189,
+    "fees_mean": 0.22431577964283528,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.224333711443746,
+    "loss_cvar_99": 14.897661087158081,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 4.0
+    },
+    "method_name": "leland_local_vol-scale-4",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.377213695969582,
+    "pnl_std": 2.059425267420024,
+    "score": -11.83993929129189,
+    "turnover_mean": 2.2402008834373954
+  },
+  {
+    "entropic_risk": 12.136680957961476,
+    "fees_mean": 0.1987115029602498,
+    "leaderboard": "public",
+    "loss_cvar_95": 14.065660690646293,
+    "loss_cvar_99": 15.82329371258929,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 48.0
+    },
+    "method_name": "leland_local_vol-scale-48",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.352553208370209,
+    "pnl_std": 2.360428385817593,
+    "score": -12.136680957961476,
+    "turnover_mean": 1.9831044385647776
+  },
+  {
+    "entropic_risk": 11.786283997150546,
+    "fees_mean": 0.22263329684324565,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.2399071117707,
+    "loss_cvar_99": 14.894484404679183,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 6.0
+    },
+    "method_name": "leland_local_vol-scale-6",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.375548328738214,
+    "pnl_std": 2.0659653768057566,
+    "score": -11.786283997150546,
+    "turnover_mean": 2.2232442982506755
+  },
+  {
+    "entropic_risk": 12.573693655874004,
+    "fees_mean": 0.19275024412848057,
+    "leaderboard": "public",
+    "loss_cvar_95": 14.43906713862153,
+    "loss_cvar_99": 16.317227896157796,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 64.0
+    },
+    "method_name": "leland_local_vol-scale-64",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.34702245685339,
+    "pnl_std": 2.4871100721626473,
+    "score": -12.573693655874004,
+    "turnover_mean": 1.923509978193045
+  },
+  {
+    "entropic_risk": 11.74258899940641,
+    "fees_mean": 0.221028478313759,
+    "leaderboard": "public",
+    "loss_cvar_95": 13.260056893269173,
+    "loss_cvar_99": 14.898760422126397,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 8.0
+    },
+    "method_name": "leland_local_vol-scale-8",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.37396433969736,
+    "pnl_std": 2.073988308997237,
+    "score": -11.74258899940641,
+    "turnover_mean": 2.207079677779675
+  },
+  {
+    "entropic_risk": 13.503623460461652,
+    "fees_mean": 0.1833907805199176,
+    "leaderboard": "public",
+    "loss_cvar_95": 15.143118506120553,
+    "loss_cvar_99": 17.261768556379533,
+    "method": {
+      "kind": "leland_local_vol",
+      "leland_scale": 96.0
+    },
+    "method_name": "leland_local_vol-scale-96",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.338514948747159,
+    "pnl_std": 2.7219300829088837,
+    "score": -13.503623460461652,
+    "turnover_mean": 1.8301393770039083
+  },
+  {
+    "entropic_risk": 83.61089457401776,
+    "fees_mean": 0.0,
+    "leaderboard": "public",
+    "loss_cvar_95": 37.799685816697135,
+    "loss_cvar_99": 48.88429921061604,
+    "method": {
+      "kind": "no_hedge"
+    },
+    "method_name": "no_hedge",
+    "n_paths": 100000,
+    "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+    "pnl_mean": -8.093440831941713,
+    "pnl_std": 10.910644130896848,
+    "score": -83.61089457401776,
+    "turnover_mean": 0.0
+  }
+]

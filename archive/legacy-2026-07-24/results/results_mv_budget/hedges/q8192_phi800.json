@@ -1,0 +1,8 @@
+{
+  "n_quad": 8192,
+  "phi_max": 800.0,
+  "kind": "truncation_check",
+  "label": "q8192_phi800",
+  "batch_size": 512,
+  "elapsed_compute_sec": 2.0231191110797226
+}

@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+.uv/
+data/leaderboards/*.npz
+local/
+*.egg-info/
+
+# Experiment configs and compact reports are versioned; bulky model artifacts are not.
+**/exp/**/*
+!**/exp/**/
+!**/exp/**/config.toml
+!**/exp/**/manifest.toml
+!**/exp/**/scores-*.json
+!**/exp/**/summary.txt
+!**/exp/**/DONE
+!**/exp/**/FAILED
+!**/exp/**/PRIVATE_NOT_EVALUATED.txt
+!**/exp/**/leaderboard-public.json
+!**/exp/**/leaderboard-private.json
+!**/exp/**/public-selection.json
+!**/exp/**/run-summary.json
+!**/exp/stage1-generation-summary.json

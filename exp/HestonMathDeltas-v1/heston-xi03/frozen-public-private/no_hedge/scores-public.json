@@ -1,0 +1,17 @@
+{
+  "entropic_risk": 83.61089457401776,
+  "fees_mean": 0.0,
+  "leaderboard": "public",
+  "loss_cvar_95": 37.799685816697135,
+  "loss_cvar_99": 48.88429921061604,
+  "method": {
+    "kind": "no_hedge"
+  },
+  "method_name": "no_hedge",
+  "n_paths": 100000,
+  "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+  "pnl_mean": -8.093440831941713,
+  "pnl_std": 10.910644130896848,
+  "score": -83.61089457401776,
+  "turnover_mean": 0.0
+}

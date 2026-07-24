@@ -1,0 +1,27 @@
+score: -10.871619773338859
+entropic_risk: 10.871619773338859
+pnl_mean: -8.331963870937825
+pnl_std: 2.0755686632988346
+loss_cvar_95: 12.683048757451267
+loss_cvar_99: 14.159298378509003
+fees_mean: 0.18548981302000583
+turnover_mean: 1.8551575788450243
+n_paths: 100000
+leaderboard: public
+paths_sha256: cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b
+seed: 1
+xi: 0.3
+architecture: ntbn
+feature_mode: ntbn_paper
+feature_names: ['log_moneyness', 'time_to_expiry', 'instantaneous_volatility', 'previous_hedge_for_clamp_only']
+hidden_dims: [32, 32, 32, 32]
+activation: relu
+band_center: local_black_scholes_delta
+source_commit: c061a1a673a82d63278ba6a3a4bf869a615a6c48
+optimizer: adam
+learning_rate: 0.001
+paths_per_epoch: 3000
+parameter_count: 3362
+best_epoch: 8200
+fit_and_eval_seconds: 949.9750158023089
+smoke: False

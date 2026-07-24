@@ -1,0 +1,152 @@
+{
+  "evaluation_status": "public development board only; private evaluation was not run",
+  "experiment": "DeepHedger-NTBN-v1",
+  "interpretation_guardrails": [
+    "The xi=0.3 comparisons use the same frozen 100000-path public board and paired training seeds.",
+    "The result is a development-board comparison, not the final out-of-sample claim.",
+    "The archived xi=0.1 Leland value 9.301237 is excluded: it used 5000 paths from NumPy seed 42 and undiscounted accounting, not the frozen 100000-path discounted board used here."
+  ],
+  "markets": {
+    "heston-xi01": {
+      "mean_best_epoch": 8800.0,
+      "mean_entropic_risk": 9.657676637063803,
+      "mean_fees_mean": 0.19378399190748113,
+      "mean_fit_and_eval_seconds": 933.4919837191701,
+      "mean_loss_cvar_95": 11.46753731650654,
+      "mean_loss_cvar_99": 12.531028351464592,
+      "mean_pnl_mean": -8.58357189754963,
+      "mean_pnl_std": 1.4629380980999005,
+      "mean_turnover_mean": 1.9452069672352823,
+      "n_seeds": 8,
+      "parameter_count": 3362,
+      "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+      "per_seed_entropic_risk": [
+        9.705495927500985,
+        9.627647771211949,
+        9.649431271762412,
+        9.706360371191556,
+        9.641784289261112,
+        9.645000153004583,
+        9.64327297570365,
+        9.64242033687418
+      ],
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "std_best_epoch": 1461.897006338975,
+      "std_entropic_risk": 0.030425528432266372,
+      "std_fees_mean": 0.008967235865460457,
+      "std_fit_and_eval_seconds": 46.147309170254,
+      "std_loss_cvar_95": 0.034243062541410275,
+      "std_loss_cvar_99": 0.07561792919055076,
+      "std_pnl_mean": 0.008949450906094706,
+      "std_pnl_std": 0.016032269772211987,
+      "std_turnover_mean": 0.08568773603051176
+    },
+    "heston-xi03": {
+      "mean_best_epoch": 8350.0,
+      "mean_entropic_risk": 10.883740828418524,
+      "mean_fees_mean": 0.183446070397133,
+      "mean_fit_and_eval_seconds": 944.865476383653,
+      "mean_loss_cvar_95": 12.669873595881333,
+      "mean_loss_cvar_99": 14.150204754256821,
+      "mean_pnl_mean": -8.329792788162829,
+      "mean_pnl_std": 2.0562743438274387,
+      "mean_turnover_mean": 1.8385778898427636,
+      "n_seeds": 8,
+      "parameter_count": 3362,
+      "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+      "per_seed_entropic_risk": [
+        10.853555107443993,
+        10.871619773338859,
+        10.879574126773354,
+        10.943314757506608,
+        10.868620302980142,
+        10.876929643690664,
+        10.909542440548092,
+        10.86677047506649
+      ],
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "std_best_epoch": 1437.2592966177974,
+      "std_entropic_risk": 0.02891675432512079,
+      "std_fees_mean": 0.010703294782457315,
+      "std_fit_and_eval_seconds": 48.87897664133228,
+      "std_loss_cvar_95": 0.04176864206760944,
+      "std_loss_cvar_99": 0.038178541605777376,
+      "std_pnl_mean": 0.010717386295923656,
+      "std_pnl_std": 0.021959314548109277,
+      "std_turnover_mean": 0.10009822407395226
+    }
+  },
+  "score_direction": "lower entropic risk is better",
+  "xi03_math_references": [
+    {
+      "entropic_risk": 11.652543090135763,
+      "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+      "reference": "Leland local-vol delta, scale 18"
+    },
+    {
+      "entropic_risk": 11.629454251545086,
+      "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+      "reference": "Heston MV no-trade delta, width 0.04"
+    }
+  ],
+  "xi03_paired_comparisons": [
+    {
+      "difference_definition": "NTBN entropic risk - reference entropic risk",
+      "mean_paired_difference": -0.06905862728311485,
+      "mean_reference_entropic_risk": 10.95279945570164,
+      "n_pairs": 8,
+      "ntbn_wins": 8,
+      "paired_differences": [
+        -0.07265765449657025,
+        -0.0728840954771286,
+        -0.09311852960856015,
+        -0.029472087104778666,
+        -0.06508239553025064,
+        -0.0988863698743856,
+        -0.04359517731274565,
+        -0.07677270886049925
+      ],
+      "reference": "Vanilla DH, normalized shared MLP",
+      "std_paired_difference": 0.023259281566743034,
+      "std_reference_entropic_risk": 0.019090555584114047
+    },
+    {
+      "difference_definition": "NTBN entropic risk - reference entropic risk",
+      "mean_paired_difference": -0.01593348231943592,
+      "mean_reference_entropic_risk": 10.89967431073796,
+      "n_pairs": 8,
+      "ntbn_wins": 5,
+      "paired_differences": [
+        -0.07004758122156218,
+        -0.028272781411224912,
+        0.025474063701512506,
+        0.053546546409897644,
+        -0.052261413158770864,
+        -0.046323799574491176,
+        0.03091431653187726,
+        -0.040497209832725645
+      ],
+      "reference": "Public-selected featurewise PAF, sigma 1.0",
+      "std_paired_difference": 0.04576966582833526,
+      "std_reference_entropic_risk": 0.024652118432252148
+    }
+  ]
+}

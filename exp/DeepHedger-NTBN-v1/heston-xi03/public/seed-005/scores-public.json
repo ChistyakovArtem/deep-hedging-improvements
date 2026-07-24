@@ -1,0 +1,39 @@
+{
+  "activation": "relu",
+  "architecture": "ntbn",
+  "band_center": "local_black_scholes_delta",
+  "best_epoch": 10000,
+  "entropic_risk": 10.876929643690664,
+  "feature_mode": "ntbn_paper",
+  "feature_names": [
+    "log_moneyness",
+    "time_to_expiry",
+    "instantaneous_volatility",
+    "previous_hedge_for_clamp_only"
+  ],
+  "fees_mean": 0.18627241617240015,
+  "fit_and_eval_seconds": 932.6372747533023,
+  "hidden_dims": [
+    32,
+    32,
+    32,
+    32
+  ],
+  "leaderboard": "public",
+  "learning_rate": 0.001,
+  "loss_cvar_95": 12.632244565109804,
+  "loss_cvar_99": 14.109550613266128,
+  "n_paths": 100000,
+  "optimizer": "adam",
+  "parameter_count": 3362,
+  "paths_per_epoch": 3000,
+  "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+  "pnl_mean": -8.33301809586525,
+  "pnl_std": 2.0472731541310463,
+  "score": -10.876929643690664,
+  "seed": 5,
+  "smoke": false,
+  "source_commit": "c061a1a673a82d63278ba6a3a4bf869a615a6c48",
+  "turnover_mean": 1.8647512184274198,
+  "xi": 0.3
+}

@@ -91,6 +91,25 @@ The machine-readable selection, private aggregates, paired differences, and
 tail diagnostics are in
 [`exp/DeepHedger-Stage1-v1/heston-xi03/split-public/final-summary.json`](exp/DeepHedger-Stage1-v1/heston-xi03/split-public/final-summary.json).
 
+## NTBN literature baseline
+
+The Imaki et al. No-Transaction Band Network baseline completed for eight
+training seeds on both public Heston boards. Lower entropic risk is better.
+
+| Market | NTBN public entropic risk | Same-board references |
+|---|---:|---|
+| Heston, xi=0.1 | 9.6577 ± 0.0304 | eight-seed exact-board baselines pending |
+| Heston, xi=0.3 | **10.8837 ± 0.0289** | Vanilla DH: 10.9528 ± 0.0191; selected PAF: 10.8997 ± 0.0247; MV no-trade: 11.6295 |
+
+At xi=0.3, NTBN beat vanilla DH in all eight paired training seeds
+(mean paired difference -0.0691) and PAF in five of eight
+(mean difference -0.0159). These are development-board results, not a final
+out-of-sample claim; NTBN has not been evaluated on the private board. The
+archived xi=0.1 Leland value 9.3012 is not placed in the table because it used
+a different 5,000-path board and undiscounted accounting. Full seed-level
+results and comparison guardrails are in
+[`exp/DeepHedger-NTBN-v1/run-summary.json`](exp/DeepHedger-NTBN-v1/run-summary.json).
+
 The coursework-era notebooks and results were moved without deletion to
 [`archive/legacy-2026-07-24`](archive/legacy-2026-07-24). The first paper frame
 is under [`paper/mark-0`](paper/mark-0).

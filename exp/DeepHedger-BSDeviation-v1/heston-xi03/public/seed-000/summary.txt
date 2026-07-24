@@ -1,0 +1,28 @@
+score: -10.936924708279202
+entropic_risk: 10.936924708279202
+pnl_mean: -8.333659775352478
+pnl_std: 2.0288395693389663
+loss_cvar_95: 12.644601316171702
+loss_cvar_99: 14.129589062708837
+fees_mean: 0.1875705415721983
+turnover_mean: 1.8801096798264982
+n_paths: 100000
+leaderboard: public
+paths_sha256: cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b
+seed: 0
+xi: 0.3
+architecture: mlp
+feature_mode: local_bs_state
+feature_names: ['log_moneyness', 'time_to_expiry', 'instantaneous_volatility', 'previous_hedge']
+prediction_target: local_bs_deviation
+output_initialization: zero_last
+hidden_dims: [64, 32]
+activation: leaky_relu
+optimizer: adam
+learning_rate: 0.001
+paths_per_epoch: 3000
+parameter_count: 2433
+best_epoch: 10000
+fit_and_eval_seconds: 468.9579536728561
+primary_comparator: DeepHedger-NTBN-v1
+smoke: False

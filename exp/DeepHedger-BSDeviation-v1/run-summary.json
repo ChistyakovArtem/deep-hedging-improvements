@@ -1,0 +1,246 @@
+{
+  "evaluation_status": "public development boards only; private evaluation was not run",
+  "experiment": "DeepHedger-BSDeviation-v1",
+  "interpretation_guardrails": [
+    "Every comparison uses the same frozen 100000-path public board and paired training seeds.",
+    "The candidate changes the state coordinates, prediction target, initialization, and MLP shape relative to NTBN; this is a recipe comparison, not a one-factor architecture ablation.",
+    "The 95% intervals quantify four-seed training variation on the development board and are not final out-of-sample uncertainty."
+  ],
+  "markets": {
+    "heston-xi01": {
+      "bs_deviation": {
+        "mean_best_epoch": 8850.0,
+        "mean_entropic_risk": 9.626056422624341,
+        "mean_fees_mean": 0.2031592923451774,
+        "mean_fit_and_eval_seconds": 469.89182448442443,
+        "mean_loss_cvar_95": 11.43393628670201,
+        "mean_loss_cvar_99": 12.467363117219922,
+        "mean_pnl_mean": -8.592753703312875,
+        "mean_pnl_std": 1.456580046039052,
+        "mean_turnover_mean": 2.0415475461269916,
+        "n_seeds": 4,
+        "parameter_count": 2433,
+        "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+        "per_seed_entropic_risk": [
+          9.623107049804771,
+          9.629064303150292,
+          9.625620695769184,
+          9.62643364177312
+        ],
+        "seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "sem_best_epoch": 386.2210075418823,
+        "sem_entropic_risk": 0.0012274057148353031,
+        "sem_fees_mean": 0.00023934856021381342,
+        "sem_fit_and_eval_seconds": 7.391804032918188,
+        "sem_loss_cvar_95": 0.0018886738153711556,
+        "sem_loss_cvar_99": 0.0038251780944024744,
+        "sem_pnl_mean": 0.00024404726397409633,
+        "sem_pnl_std": 0.004283361010781888,
+        "sem_turnover_mean": 0.002957506615062878,
+        "std_best_epoch": 772.4420150837645,
+        "std_entropic_risk": 0.0024548114296706063,
+        "std_fees_mean": 0.00047869712042762684,
+        "std_fit_and_eval_seconds": 14.783608065836376,
+        "std_loss_cvar_95": 0.003777347630742311,
+        "std_loss_cvar_99": 0.007650356188804949,
+        "std_pnl_mean": 0.00048809452794819266,
+        "std_pnl_std": 0.008566722021563776,
+        "std_turnover_mean": 0.005915013230125756
+      },
+      "ntbn_same_four_seeds": {
+        "mean_best_epoch": 8250.0,
+        "mean_entropic_risk": 9.672233835416726,
+        "mean_fees_mean": 0.19037054912464696,
+        "mean_fit_and_eval_seconds": 920.5529500879347,
+        "mean_loss_cvar_95": 11.484812975072831,
+        "mean_loss_cvar_99": 12.569986485815669,
+        "mean_pnl_mean": -8.580182080668212,
+        "mean_pnl_std": 1.4559909719590545,
+        "mean_turnover_mean": 1.9161147633175555,
+        "n_seeds": 4,
+        "parameter_count": 3362,
+        "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+        "per_seed_entropic_risk": [
+          9.705495927500985,
+          9.627647771211949,
+          9.649431271762412,
+          9.706360371191556
+        ],
+        "seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "sem_best_epoch": 1004.5728777279759,
+        "sem_entropic_risk": 0.01995591233255206,
+        "sem_fees_mean": 0.006196633676367301,
+        "sem_fit_and_eval_seconds": 18.781840664063374,
+        "sem_loss_cvar_95": 0.02190983897312148,
+        "sem_loss_cvar_99": 0.046584490431611135,
+        "sem_pnl_mean": 0.006200570306135094,
+        "sem_pnl_std": 0.006237741539042617,
+        "sem_turnover_mean": 0.06019801985358989,
+        "std_best_epoch": 2009.1457554559518,
+        "std_entropic_risk": 0.03991182466510412,
+        "std_fees_mean": 0.012393267352734601,
+        "std_fit_and_eval_seconds": 37.56368132812675,
+        "std_loss_cvar_95": 0.04381967794624296,
+        "std_loss_cvar_99": 0.09316898086322227,
+        "std_pnl_mean": 0.012401140612270187,
+        "std_pnl_std": 0.012475483078085233,
+        "std_turnover_mean": 0.12039603970717978
+      },
+      "paired_comparison": {
+        "bs_deviation_wins": 3,
+        "difference_definition": "BS-deviation entropic risk - NTBN entropic risk; negative favors BS-deviation",
+        "mean_paired_difference": -0.04617741279238352,
+        "n_pairs": 4,
+        "ntbn_wins": 1,
+        "paired_differences": [
+          -0.08238887769621428,
+          0.001416531938343013,
+          -0.023810575993227445,
+          -0.07992672941843537
+        ],
+        "paired_mean_95pct_t_interval": [
+          -0.11252553852103622,
+          0.02017071293626918
+        ],
+        "paired_seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "reference": "DeepHedger-NTBN-v1",
+        "sem_paired_difference": 0.020848152449394648,
+        "std_paired_difference": 0.041696304898789296,
+        "ties": 0
+      }
+    },
+    "heston-xi03": {
+      "bs_deviation": {
+        "mean_best_epoch": 6850.0,
+        "mean_entropic_risk": 10.922284973687846,
+        "mean_fees_mean": 0.19172803451415155,
+        "mean_fit_and_eval_seconds": 487.2923181806691,
+        "mean_loss_cvar_95": 12.659049768873128,
+        "mean_loss_cvar_99": 14.14662538255964,
+        "mean_pnl_mean": -8.338112433040738,
+        "mean_pnl_std": 2.027942471511583,
+        "mean_turnover_mean": 1.9200815182749928,
+        "n_seeds": 4,
+        "parameter_count": 2433,
+        "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+        "per_seed_entropic_risk": [
+          10.936924708279202,
+          10.89873675105713,
+          10.919436009364615,
+          10.934042426050437
+        ],
+        "seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "sem_best_epoch": 1090.489186863706,
+        "sem_entropic_risk": 0.008733054552220558,
+        "sem_fees_mean": 0.00152462598581734,
+        "sem_fit_and_eval_seconds": 7.4287170910969085,
+        "sem_loss_cvar_95": 0.01617547182706115,
+        "sem_loss_cvar_99": 0.012349354333623816,
+        "sem_pnl_mean": 0.0016717652984258276,
+        "sem_pnl_std": 0.004663906104619801,
+        "sem_turnover_mean": 0.014546827279763384,
+        "std_best_epoch": 2180.978373727412,
+        "std_entropic_risk": 0.017466109104441116,
+        "std_fees_mean": 0.00304925197163468,
+        "std_fit_and_eval_seconds": 14.857434182193817,
+        "std_loss_cvar_95": 0.0323509436541223,
+        "std_loss_cvar_99": 0.024698708667247632,
+        "std_pnl_mean": 0.0033435305968516553,
+        "std_pnl_std": 0.009327812209239603,
+        "std_turnover_mean": 0.02909365455952677
+      },
+      "ntbn_same_four_seeds": {
+        "mean_best_epoch": 8000.0,
+        "mean_entropic_risk": 10.887015941265703,
+        "mean_fees_mean": 0.178808202810362,
+        "mean_fit_and_eval_seconds": 930.1565592546249,
+        "mean_loss_cvar_95": 12.690544147010899,
+        "mean_loss_cvar_99": 14.171400835702231,
+        "mean_pnl_mean": -8.325570823314191,
+        "mean_pnl_std": 2.063906971494276,
+        "mean_turnover_mean": 1.794701342674345,
+        "n_seeds": 4,
+        "parameter_count": 3362,
+        "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+        "per_seed_entropic_risk": [
+          10.853555107443993,
+          10.871619773338859,
+          10.879574126773354,
+          10.943314757506608
+        ],
+        "seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "sem_best_epoch": 663.32495807108,
+        "sem_entropic_risk": 0.019539717457743473,
+        "sem_fees_mean": 0.00720044783722942,
+        "sem_fit_and_eval_seconds": 20.484148068529873,
+        "sem_loss_cvar_95": 0.023339978178011877,
+        "sem_loss_cvar_99": 0.019314406799659452,
+        "sem_pnl_mean": 0.007400473642656916,
+        "sem_pnl_std": 0.013971942346986697,
+        "sem_turnover_mean": 0.06708539094059661,
+        "std_best_epoch": 1326.64991614216,
+        "std_entropic_risk": 0.039079434915486946,
+        "std_fees_mean": 0.01440089567445884,
+        "std_fit_and_eval_seconds": 40.968296137059745,
+        "std_loss_cvar_95": 0.046679956356023754,
+        "std_loss_cvar_99": 0.038628813599318905,
+        "std_pnl_mean": 0.014800947285313832,
+        "std_pnl_std": 0.027943884693973395,
+        "std_turnover_mean": 0.13417078188119322
+      },
+      "paired_comparison": {
+        "bs_deviation_wins": 1,
+        "difference_definition": "BS-deviation entropic risk - NTBN entropic risk; negative favors BS-deviation",
+        "mean_paired_difference": 0.03526903242214274,
+        "n_pairs": 4,
+        "ntbn_wins": 3,
+        "paired_differences": [
+          0.0833696008352085,
+          0.02711697771827204,
+          0.03986188259126067,
+          -0.009272331456170235
+        ],
+        "paired_mean_95pct_t_interval": [
+          -0.025567239428101594,
+          0.09610530427238709
+        ],
+        "paired_seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "reference": "DeepHedger-NTBN-v1",
+        "sem_paired_difference": 0.019116197421670037,
+        "std_paired_difference": 0.038232394843340074,
+        "ties": 0
+      }
+    }
+  },
+  "score_direction": "lower entropic risk is better"
+}

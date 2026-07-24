@@ -1,0 +1,38 @@
+{
+  "activation": "leaky_relu",
+  "architecture": "mlp",
+  "best_epoch": 9400,
+  "entropic_risk": 9.623107049804771,
+  "feature_mode": "local_bs_state",
+  "feature_names": [
+    "log_moneyness",
+    "time_to_expiry",
+    "instantaneous_volatility",
+    "previous_hedge"
+  ],
+  "fees_mean": 0.20309141919367016,
+  "fit_and_eval_seconds": 483.0769647061825,
+  "hidden_dims": [
+    64,
+    32
+  ],
+  "leaderboard": "public",
+  "learning_rate": 0.001,
+  "loss_cvar_95": 11.429114006872393,
+  "loss_cvar_99": 12.475181855879105,
+  "n_paths": 100000,
+  "optimizer": "adam",
+  "output_initialization": "zero_last",
+  "parameter_count": 2433,
+  "paths_per_epoch": 3000,
+  "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+  "pnl_mean": -8.592893827836514,
+  "pnl_std": 1.4505411700949797,
+  "prediction_target": "local_bs_deviation",
+  "primary_comparator": "DeepHedger-NTBN-v1",
+  "score": -9.623107049804771,
+  "seed": 0,
+  "smoke": false,
+  "turnover_mean": 2.0405653150963783,
+  "xi": 0.1
+}

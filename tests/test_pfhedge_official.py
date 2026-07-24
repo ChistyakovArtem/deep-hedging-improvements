@@ -75,3 +75,8 @@ def test_pfhedge_matrix_and_nirvana_volley_are_complete() -> None:
     smoke = build_graphs(smoke=True)
     validate_graphs(full)
     validate_graphs(smoke, smoke=True)
+    assert all(
+        "VIRTUAL_ENV=$UV_PROJECT_ENVIRONMENT uv pip install"
+        in graph["venv_commands"]
+        for graph in full
+    )

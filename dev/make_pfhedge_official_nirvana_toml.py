@@ -30,7 +30,10 @@ PROFILE = {
         [
             "uv sync --no-build-isolation",
             f'echo "{PFHEDGE_WHEEL_SHA256}  {PFHEDGE_WHEEL}" | sha256sum -c -',
-            f"uv pip install --no-deps {PFHEDGE_WHEEL}",
+            (
+                "VIRTUAL_ENV=$UV_PROJECT_ENVIRONMENT "
+                f"uv pip install --no-deps {PFHEDGE_WHEEL}"
+            ),
             (
                 "uv run --no-sync python -c "
                 f"\"import pfhedge; assert pfhedge.__version__ == '{PFHEDGE_VERSION}'\""
@@ -88,6 +91,10 @@ def validate_graphs(graphs: list[dict], smoke: bool = False) -> None:
             raise RuntimeError("The tabular scheduler pool is required.")
         if PFHEDGE_WHEEL_SHA256 not in graph["venv_commands"]:
             raise RuntimeError("The official wheel must be hash-verified.")
+        if "VIRTUAL_ENV=$UV_PROJECT_ENVIRONMENT uv pip install" not in graph[
+            "venv_commands"
+        ]:
+            raise RuntimeError("The wheel must be installed into Nirvana's project venv.")
         if graph["data_ids"] or graph["data_commands"] != "mkdir -p data":
             raise RuntimeError("Leaderboards must be generated deterministically in-job.")
 

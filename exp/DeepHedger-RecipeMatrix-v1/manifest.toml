@@ -1,0 +1,188 @@
+experiment = "DeepHedger-RecipeMatrix-v1"
+n_markets = 2
+n_variants = 8
+n_seeds_per_variant_market = 8
+n_configs = 128
+public_seed = 20260724
+public_paths = 100000
+private_access = false
+variant_order = [
+    "v00-vanilla-original",
+    "v01-vanilla-best-features",
+    "v02-residual-local-bs",
+    "v03-residual-best-pointwise",
+    "v04-residual-best-overall",
+    "v05-band-local-bs",
+    "v06-band-best-pointwise",
+    "v07-band-best-overall",
+]
+selection_notes = [
+    "xi=0.1 best-pointwise and best-overall are the same Leland scale-20 policy; both requested labels are retained.",
+    "xi=0.3 best-overall is a full Heston-MV no-trade policy, not misrepresented as a pointwise delta.",
+    "The 513x257 Heston-MV interpolation grid reproduces the exact xi=0.3 public no-trade risk within 0.0011 (11.62837 versus 11.62945).",
+]
+grouping = "eight one-GPU jobs keyed by training seed; each queues all sixteen market-variant configs"
+config_directories = [
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-000/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-000/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-000/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-000/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-000/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-000/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-000/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-000/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-001/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-001/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-001/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-001/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-001/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-001/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-001/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-001/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-002/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-002/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-002/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-002/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-002/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-002/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-002/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-002/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-003/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-003/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-003/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-003/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-003/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-003/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-003/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-003/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-004/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-004/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-004/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-004/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-004/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-004/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-004/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-004/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-005/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-005/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-005/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-005/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-005/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-005/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-005/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-005/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-006/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-006/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-006/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-006/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-006/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-006/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-006/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-006/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-007/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-007/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-007/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-007/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-007/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-007/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-007/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi01/public/seed-007/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-000/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-000/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-000/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-000/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-000/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-000/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-000/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-000/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-001/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-001/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-001/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-001/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-001/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-001/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-001/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-001/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-003/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-003/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-003/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-003/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-003/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-003/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-003/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-003/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-004/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-004/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-004/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-004/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-004/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-004/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-004/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-004/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-005/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-005/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-005/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-005/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-005/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-005/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-005/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-005/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-006/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-006/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-006/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-006/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-006/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-006/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-006/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-006/v07-band-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-007/v00-vanilla-original",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-007/v01-vanilla-best-features",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-007/v02-residual-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-007/v03-residual-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-007/v04-residual-best-overall",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-007/v05-band-local-bs",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-007/v06-band-best-pointwise",
+    "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-007/v07-band-best-overall",
+]
+
+[reference_selections.heston-xi01.best_pointwise]
+kind = "leland_local_vol"
+leland_scale = 20.0
+no_trade_width = 0.0
+public_entropic_risk = 9.729814039984172
+
+[reference_selections.heston-xi01.best_overall]
+kind = "leland_local_vol"
+leland_scale = 20.0
+no_trade_width = 0.0
+public_entropic_risk = 9.729814039984172
+
+[reference_selections.heston-xi03.best_pointwise]
+kind = "leland_local_vol"
+leland_scale = 18.0
+no_trade_width = 0.0
+public_entropic_risk = 11.652543090135763
+
+[reference_selections.heston-xi03.best_overall]
+kind = "heston_mv_no_trade"
+leland_scale = 0.0
+no_trade_width = 0.04
+public_entropic_risk = 11.629454251545086
+
+[common_protocol]
+market_differences = "xi only"
+accounting = "discounted"
+objective = "entropic_risk_gamma_1"
+transaction_cost = 0.001
+n_steps = 30
+no_paf = true
+no_running_pnl = true
+stock_only = true

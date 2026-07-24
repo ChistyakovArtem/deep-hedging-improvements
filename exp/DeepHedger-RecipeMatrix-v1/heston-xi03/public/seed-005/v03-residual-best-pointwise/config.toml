@@ -1,0 +1,112 @@
+seed = 5
+
+[experiment]
+name = "DeepHedger-RecipeMatrix-v1"
+purpose = "factor features, action head, and mathematical reference hedge without periodic embeddings"
+market = "heston-xi03"
+split = "public"
+variant_id = 3
+variant = "v03-residual-best-pointwise"
+article_label = "Best features + best-pointwise residual"
+model = "DeepHedger"
+
+[market]
+model = "heston"
+scheme = "full_truncation_euler"
+S0 = 100.0
+K = 100.0
+v0 = 0.04
+r = 0.01
+kappa = 2.0
+theta = 0.04
+xi = 0.3
+rho = -0.7
+T = 1.0
+N = 30
+transaction_cost = 0.001
+accounting = "discounted"
+payoff = "european_call"
+
+[objective]
+name = "entropic_risk"
+risk_aversion = 1.0
+pnl_scale = 1.0
+score_direction = "higher"
+score_definition = "score = -entropic_risk"
+
+[leaderboard]
+name = "recipe-matrix-xi03-public"
+n_paths = 100000
+seed = 20260724
+paths_sha256 = "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b"
+allowed_uses = [
+    "checkpoint_selection",
+    "diagnostic_reporting",
+]
+
+[model]
+architecture = "mlp"
+feature_mode = "normalized"
+feature_names = [
+    "log_moneyness",
+    "variance_ratio",
+    "time_ratio",
+    "previous_hedge",
+]
+time_parameterization = "shared"
+hidden_dims = [
+    64,
+    32,
+]
+activation = "leaky_relu"
+batch_norm = false
+action_head = "delta_residual"
+prediction_target = "direct"
+output_initialization = "zero_last"
+reference_hedge = "leland_local_vol"
+reference_used = true
+reference_leland_scale = 18.0
+reference_no_trade_width = 0.0
+reference_grid_moneyness_points = 513
+reference_grid_volatility_points = 257
+reference_grid_log_moneyness_min = -1.5
+reference_grid_log_moneyness_max = 1.5
+reference_grid_volatility_min = 0.0001
+reference_grid_volatility_max = 1.0
+reference_cf_n_quad = 256
+reference_cf_phi_min = 1e-08
+reference_cf_phi_max = 200.0
+reference_cf_batch_size = 8192
+n_frequencies = 16
+paf_sigma = 1.0
+periodic_include_linear = false
+
+[training]
+optimizer = "adam"
+learning_rate = 0.001
+n_epochs = 10000
+paths_per_epoch = 3000
+validation_interval = 200
+
+[reference_selection]
+selector = "best_pointwise"
+used = true
+selection_metric = "lowest entropic risk on the frozen public mathematical-delta board"
+kind = "leland_local_vol"
+leland_scale = 18.0
+no_trade_width = 0.0
+public_entropic_risk = 11.652543090135763
+
+[evaluation]
+leaderboards = [
+    "public",
+]
+save_predictions = true
+private_access = false
+
+[provenance]
+matrix_axes = "features x action head x reference hedge"
+no_paf = true
+no_running_pnl = true
+paper_ntbn_difference = "merged band heads use the best normalized features and feed previous hedge to the encoder as well as the structural clamp"
+best_overall_semantics = "a complete deterministic reference policy; when it already has a no-trade band, its own reference position is tracked independently"

@@ -12,6 +12,7 @@ from deep_hedger import DeepHedger as PublicDeepHedger
 from src.evaluation import backtest_actions, entropic_risk
 from src.hedger import DeepHedger, DeepHedgerConfig
 from src.market import TorchHestonStream, paths_sha256, sample_heston_numpy
+from src.reference_hedges import leland_local_vol_delta
 import src.nirvana_io as nirvana_io
 
 
@@ -275,6 +276,72 @@ def test_bs_deviation_features_and_zero_initial_residual() -> None:
         dim=1,
     )
     assert torch.allclose(actions, expected_actions)
+
+
+def test_action_head_is_orthogonal_to_encoder_and_reference() -> None:
+    paths = torch.as_tensor(sample_heston_numpy(MARKET, 16, seed=19))
+    residual = DeepHedger(
+        MARKET,
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            architecture="mlp",
+            feature_mode="normalized",
+            action_head="delta_residual",
+            reference_hedge="leland_local_vol",
+            reference_leland_scale=18.0,
+            output_initialization="zero_last",
+        ),
+        device="cpu",
+    )
+    residual_actions = residual.predict_actions(paths)
+    expected_reference = torch.stack(
+        [
+            leland_local_vol_delta(paths, MARKET, step, scale=18.0)
+            for step in range(MARKET["N"])
+        ],
+        dim=1,
+    )
+    assert torch.allclose(residual_actions, expected_reference)
+
+    band = DeepHedger(
+        MARKET,
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            architecture="mlp",
+            feature_mode="normalized",
+            action_head="delta_band",
+            reference_hedge="local_bs",
+            output_initialization="zero_last",
+        ),
+        device="cpu",
+    )
+    band_actions = band.predict_actions(paths)
+    expected_local_bs = torch.stack(
+        [band._local_bs_delta(paths, step) for step in range(MARKET["N"])],
+        dim=1,
+    )
+    assert torch.allclose(band_actions, expected_local_bs)
+    first = band.policy.mlp[0]
+    final = band.policy.mlp[-1]
+    assert isinstance(first, nn.Linear) and first.in_features == 4
+    assert isinstance(final, nn.Linear) and final.out_features == 2
+
+    periodic_band = DeepHedger(
+        MARKET,
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            architecture="paf_shared",
+            feature_mode="normalized",
+            action_head="delta_band",
+            reference_hedge="local_bs",
+            output_initialization="zero_last",
+        ),
+        device="cpu",
+    )
+    assert torch.allclose(
+        periodic_band.predict_actions(paths),
+        expected_local_bs,
+    )
 
 
 def test_snapshot_restore_republishes_completed_prefix(

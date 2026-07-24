@@ -12,6 +12,7 @@ from torch.nn import functional as F
 
 from src.evaluation import backtest_actions, entropic_risk
 from src.market import TorchHestonStream
+from src.reference_hedges import ReferenceHedge, local_black_scholes_delta
 
 
 @dataclass(frozen=True)
@@ -19,6 +20,8 @@ class DeepHedgerConfig:
     architecture: str = "mlp"
     feature_mode: str = "normalized"
     prediction_target: str = "direct"
+    action_head: str = "legacy_auto"
+    reference_hedge: str = "local_bs"
     time_parameterization: str = "shared"
     hidden_dims: tuple[int, ...] = (64, 32)
     activation: str = "leaky_relu"
@@ -27,12 +30,33 @@ class DeepHedgerConfig:
     n_frequencies: int = 16
     paf_sigma: float = 1.0
     periodic_include_linear: bool = False
+    reference_leland_scale: float = 0.0
+    reference_no_trade_width: float = 0.0
+    reference_grid_moneyness_points: int = 513
+    reference_grid_volatility_points: int = 257
+    reference_grid_log_moneyness_min: float = -1.5
+    reference_grid_log_moneyness_max: float = 1.5
+    reference_grid_volatility_min: float = 1e-4
+    reference_grid_volatility_max: float = 1.0
+    reference_cf_n_quad: int = 256
+    reference_cf_phi_min: float = 1e-8
+    reference_cf_phi_max: float = 200.0
+    reference_cf_batch_size: int = 8192
     learning_rate: float = 1e-3
     optimizer: str = "adam"
     n_epochs: int = 10_000
     paths_per_epoch: int = 3_000
     validation_interval: int = 200
     seed: int = 0
+
+    def resolved_action_head(self) -> str:
+        if self.action_head != "legacy_auto":
+            return self.action_head
+        if self.architecture == "ntbn":
+            return "delta_band"
+        if self.prediction_target == "local_bs_deviation":
+            return "delta_residual"
+        return "direct"
 
     def validate(self) -> None:
         allowed = {"mlp", "ntbn", "paf_shared", "paf_featurewise"}
@@ -56,6 +80,23 @@ class DeepHedgerConfig:
             raise ValueError("time_parameterization must be 'shared' or 'per_step'.")
         if self.prediction_target not in {"direct", "local_bs_deviation"}:
             raise ValueError("prediction_target must be 'direct' or 'local_bs_deviation'.")
+        if self.action_head not in {
+            "legacy_auto",
+            "direct",
+            "delta_residual",
+            "delta_band",
+        }:
+            raise ValueError(
+                "action_head must be legacy_auto, direct, delta_residual, or delta_band."
+            )
+        if self.reference_hedge not in {
+            "local_bs",
+            "leland_local_vol",
+            "heston_mv_no_trade",
+        }:
+            raise ValueError(
+                "reference_hedge must be local_bs, leland_local_vol, or heston_mv_no_trade."
+            )
         if self.activation not in {"leaky_relu", "relu"}:
             raise ValueError("activation must be 'leaky_relu' or 'relu'.")
         if self.output_initialization not in {"default", "zero_last"}:
@@ -75,6 +116,21 @@ class DeepHedgerConfig:
             )
         if self.architecture == "ntbn" and self.prediction_target != "direct":
             raise ValueError("NTBN defines its own band output and requires direct target.")
+        if self.architecture == "ntbn" and self.action_head not in {
+            "legacy_auto",
+            "delta_band",
+        }:
+            raise ValueError("The legacy NTBN architecture requires the delta-band head.")
+        if self.action_head != "legacy_auto" and self.prediction_target != "direct":
+            raise ValueError(
+                "Explicit action_head configs must leave prediction_target=direct."
+            )
+        if self.resolved_action_head() == "direct" and self.reference_hedge != "local_bs":
+            raise ValueError("Direct policies do not use a reference hedge.")
+        if self.reference_leland_scale < 0.0:
+            raise ValueError("reference_leland_scale must be non-negative.")
+        if self.reference_no_trade_width < 0.0:
+            raise ValueError("reference_no_trade_width must be non-negative.")
         if self.time_parameterization == "per_step" and self.feature_mode != "paper_log_state":
             raise ValueError(
                 "Per-step networks require paper_log_state, where time is "
@@ -128,6 +184,7 @@ class _Policy(nn.Module):
     def __init__(self, config: DeepHedgerConfig, input_dim: int):
         super().__init__()
         self.architecture = config.architecture
+        self.action_head = config.resolved_action_head()
         if config.architecture in {"mlp", "ntbn"}:
             self.embedding = None
             if config.architecture == "ntbn":
@@ -155,7 +212,7 @@ class _Policy(nn.Module):
             else:
                 layers.append(nn.LeakyReLU(0.01))
             previous_dim = hidden_dim
-        output_dim = 2 if config.architecture == "ntbn" else 1
+        output_dim = 2 if self.action_head == "delta_band" else 1
         output_layer = nn.Linear(previous_dim, output_dim)
         if config.output_initialization == "zero_last":
             nn.init.zeros_(output_layer.weight)
@@ -179,16 +236,18 @@ class _Policy(nn.Module):
         no_cost_delta: torch.Tensor | None = None,
     ) -> torch.Tensor:
         if self.architecture == "ntbn":
-            if no_cost_delta is None:
-                raise ValueError("NTBN requires a no-cost delta center.")
-            band_width = self.mlp(values[:, :-1])
-            lower = no_cost_delta - F.leaky_relu(band_width[:, 0])
-            upper = no_cost_delta + F.leaky_relu(band_width[:, 1])
-            return self._clamp_to_band(values[:, -1], lower, upper)
-        if self.embedding is None:
+            representation = values[:, :-1]
+        elif self.embedding is None:
             representation = values
         else:
             representation = torch.cat((self.embedding(values[:, :3]), values[:, 3:4]), dim=1)
+        if self.action_head == "delta_band":
+            if no_cost_delta is None:
+                raise ValueError("A delta-band head requires a reference center.")
+            band_width = self.mlp(representation)
+            lower = no_cost_delta - F.leaky_relu(band_width[:, 0])
+            upper = no_cost_delta + F.leaky_relu(band_width[:, 1])
+            return self._clamp_to_band(values[:, -1], lower, upper)
         return self.mlp(representation).squeeze(1)
 
 
@@ -222,6 +281,25 @@ class DeepHedger:
             ).to(self.device)
         else:
             self.policy = _Policy(config, input_dim).to(self.device)
+        self.reference_hedge = None
+        if config.resolved_action_head() != "direct":
+            self.reference_hedge = ReferenceHedge(
+                self.market,
+                config.reference_hedge,
+                self.device,
+                leland_scale=config.reference_leland_scale,
+                no_trade_width=config.reference_no_trade_width,
+                grid_moneyness_points=config.reference_grid_moneyness_points,
+                grid_volatility_points=config.reference_grid_volatility_points,
+                grid_log_moneyness_min=(config.reference_grid_log_moneyness_min),
+                grid_log_moneyness_max=(config.reference_grid_log_moneyness_max),
+                grid_volatility_min=config.reference_grid_volatility_min,
+                grid_volatility_max=config.reference_grid_volatility_max,
+                cf_n_quad=config.reference_cf_n_quad,
+                cf_phi_min=config.reference_cf_phi_min,
+                cf_phi_max=config.reference_cf_phi_max,
+                cf_batch_size=config.reference_cf_batch_size,
+            )
         self.best_epoch: int | None = None
         self.best_public_risk: float | None = None
         self.training_log: list[dict[str, float | int]] = []
@@ -287,41 +365,41 @@ class DeepHedger:
         step: int,
     ) -> torch.Tensor:
         """Local Black--Scholes delta from the current Heston state."""
-        spot = paths[:, step, 0]
-        variance = paths[:, step, 1]
-        log_moneyness = torch.log(spot / float(self.market["K"]))
-        expiry = torch.full_like(
-            spot,
-            float(self.market["T"]) * (1.0 - step / int(self.market["N"])),
-        )
-        volatility = torch.sqrt(variance.clamp_min(torch.finfo(variance.dtype).tiny))
-        denominator = volatility * torch.sqrt(expiry)
-        d1 = (
-            log_moneyness + (float(self.market["r"]) + 0.5 * volatility.square()) * expiry
-        ) / denominator
-        return 0.5 * (1.0 + torch.erf(d1 / math.sqrt(2.0)))
+        return local_black_scholes_delta(paths, self.market, step)
 
     def predict_actions(self, paths: torch.Tensor) -> torch.Tensor:
         if paths.device != self.device:
             paths = paths.to(self.device)
         n_paths = len(paths)
         previous = torch.zeros(n_paths, device=self.device, dtype=paths.dtype)
+        previous_reference = torch.zeros_like(previous)
+        action_head = self.config.resolved_action_head()
         actions = []
         for step in range(int(self.market["N"])):
             features = self._features(paths, step, previous)
             policy = self._policy_for_step(step)
-            local_bs_delta = self._local_bs_delta(paths, step)
-            if self.config.architecture == "ntbn":
+            reference = None
+            if self.reference_hedge is not None:
+                reference = self.reference_hedge.step(
+                    paths,
+                    step,
+                    previous_reference,
+                )
+            if action_head == "delta_band":
                 action = policy(
                     features,
-                    no_cost_delta=local_bs_delta,
+                    no_cost_delta=reference,
                 )
-            elif self.config.prediction_target == "local_bs_deviation":
-                action = local_bs_delta + policy(features)
+            elif action_head == "delta_residual":
+                if reference is None:
+                    raise RuntimeError("A residual head requires a reference.")
+                action = reference + policy(features)
             else:
                 action = policy(features)
             actions.append(action)
             previous = action
+            if reference is not None:
+                previous_reference = reference
         return torch.stack(actions, dim=1)
 
     def evaluate_tensor(

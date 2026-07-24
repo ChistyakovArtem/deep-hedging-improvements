@@ -1,0 +1,111 @@
+seed = 2
+
+[experiment]
+name = "DeepHedger-RecipeMatrix-v1"
+purpose = "factor features, action head, and mathematical reference hedge without periodic embeddings"
+market = "heston-xi01"
+split = "public"
+variant_id = 1
+variant = "v01-vanilla-best-features"
+article_label = "Vanilla DH + best features"
+model = "DeepHedger"
+
+[market]
+model = "heston"
+scheme = "full_truncation_euler"
+S0 = 100.0
+K = 100.0
+v0 = 0.04
+r = 0.01
+kappa = 2.0
+theta = 0.04
+xi = 0.1
+rho = -0.7
+T = 1.0
+N = 30
+transaction_cost = 0.001
+accounting = "discounted"
+payoff = "european_call"
+
+[objective]
+name = "entropic_risk"
+risk_aversion = 1.0
+pnl_scale = 1.0
+score_direction = "higher"
+score_definition = "score = -entropic_risk"
+
+[leaderboard]
+name = "recipe-matrix-xi01-public"
+n_paths = 100000
+seed = 20260724
+paths_sha256 = "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89"
+allowed_uses = [
+    "checkpoint_selection",
+    "diagnostic_reporting",
+]
+
+[model]
+architecture = "mlp"
+feature_mode = "normalized"
+feature_names = [
+    "log_moneyness",
+    "variance_ratio",
+    "time_ratio",
+    "previous_hedge",
+]
+time_parameterization = "shared"
+hidden_dims = [
+    64,
+    32,
+]
+activation = "leaky_relu"
+batch_norm = false
+action_head = "direct"
+prediction_target = "direct"
+output_initialization = "default"
+reference_hedge = "local_bs"
+reference_used = false
+reference_leland_scale = 0.0
+reference_no_trade_width = 0.0
+reference_grid_moneyness_points = 513
+reference_grid_volatility_points = 257
+reference_grid_log_moneyness_min = -1.5
+reference_grid_log_moneyness_max = 1.5
+reference_grid_volatility_min = 0.0001
+reference_grid_volatility_max = 1.0
+reference_cf_n_quad = 256
+reference_cf_phi_min = 1e-08
+reference_cf_phi_max = 200.0
+reference_cf_batch_size = 8192
+n_frequencies = 16
+paf_sigma = 1.0
+periodic_include_linear = false
+
+[training]
+optimizer = "adam"
+learning_rate = 0.001
+n_epochs = 10000
+paths_per_epoch = 3000
+validation_interval = 200
+
+[reference_selection]
+selector = "none"
+kind = "local_bs"
+used = false
+leland_scale = 0.0
+no_trade_width = 0.0
+selection_metric = "not applicable"
+
+[evaluation]
+leaderboards = [
+    "public",
+]
+save_predictions = true
+private_access = false
+
+[provenance]
+matrix_axes = "features x action head x reference hedge"
+no_paf = true
+no_running_pnl = true
+paper_ntbn_difference = "merged band heads use the best normalized features and feed previous hedge to the encoder as well as the structural clamp"
+best_overall_semantics = "a complete deterministic reference policy; when it already has a no-trade band, its own reference position is tracked independently"

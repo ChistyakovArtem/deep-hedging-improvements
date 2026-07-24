@@ -1,0 +1,691 @@
+{
+  "article_interpretation": [
+    "At xi=0.1, the selected residual recipe is better than both official trainable PFHedge baselines across all eight paired seeds.",
+    "At xi=0.3, official README NTBN is the public-board leader and beats the selected residual recipe in seven of eight paired seeds.",
+    "These are development-board comparisons because the same public boards select checkpoints and recipes; they are not final out-of-sample claims.",
+    "PFHedge's documented BlackScholes/WhalleyWilmott/README-NTBN center uses its literal zero-rate formula while the common market has r=0.01."
+  ],
+  "evaluation_status": "public development boards only; private evaluation was not run",
+  "experiment": "PFHedge-Official-v1",
+  "markets": {
+    "heston-xi01": {
+      "official_ntbn_vs_rate_adapted_ntbn": {
+        "candidate_wins": 3,
+        "difference_definition": "candidate entropic risk - reference entropic risk; negative favors candidate",
+        "mean_difference_95ci": [
+          -0.04553251251625183,
+          0.024668559395830722
+        ],
+        "mean_paired_difference": -0.010431976560210554,
+        "n_pairs": 8,
+        "paired_differences": [
+          -0.07404577453363004,
+          0.0014691418601415762,
+          0.018464944834292396,
+          -0.07155542135541637,
+          0.0019927098251848463,
+          -0.012225781301854255,
+          0.04539528297220485,
+          0.007049085217392559
+        ],
+        "paired_ttest_pvalue_descriptive": 0.5048904061909066,
+        "reference": "DeepHedger-NTBN-v1",
+        "std_paired_difference": 0.041985236311571555
+      },
+      "paired_vs_our_selected_recipe": {
+        "mlp": {
+          "candidate_wins": 0,
+          "difference_definition": "candidate entropic risk - reference entropic risk; negative favors candidate",
+          "mean_difference_95ci": [
+            0.00547855395977195,
+            0.009889318535152711
+          ],
+          "mean_paired_difference": 0.007683936247462331,
+          "n_pairs": 8,
+          "paired_differences": [
+            0.004130399155517495,
+            0.00724580158172472,
+            0.01215763316779217,
+            0.007566022544054363,
+            0.010411955796783445,
+            0.0062598979285901635,
+            0.008431471868924234,
+            0.0052683079363120555
+          ],
+          "paired_ttest_pvalue_descriptive": 7.550838780166164e-05,
+          "reference": "v04-residual-best-overall",
+          "std_paired_difference": 0.0026379510735105556
+        },
+        "ntbn": {
+          "candidate_wins": 0,
+          "difference_definition": "candidate entropic risk - reference entropic risk; negative favors candidate",
+          "mean_difference_95ci": [
+            0.004868582664093096,
+            0.04148701192222856
+          ],
+          "mean_paired_difference": 0.02317779729316083,
+          "n_pairs": 8,
+          "paired_differences": [
+            0.0065358182952763855,
+            0.002691362590972801,
+            0.045738716472708774,
+            0.010182760731161977,
+            0.020565954783673845,
+            0.009619555375717681,
+            0.0654887464849736,
+            0.024599463610801564
+          ],
+          "paired_ttest_pvalue_descriptive": 0.020129266118612252,
+          "reference": "v04-residual-best-overall",
+          "std_paired_difference": 0.02190042635939823
+        }
+      },
+      "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+      "ranking": [
+        {
+          "mean_entropic_risk": 9.624066863210432,
+          "strategy": "our_selected_recipe"
+        },
+        {
+          "mean_entropic_risk": 9.631750799457894,
+          "strategy": "pfhedge_mlp"
+        },
+        {
+          "mean_entropic_risk": 9.647244660503592,
+          "strategy": "pfhedge_ntbn"
+        },
+        {
+          "mean_entropic_risk": 9.657676637063803,
+          "strategy": "our_rate_adapted_ntbn"
+        },
+        {
+          "mean_entropic_risk": 10.021277929292902,
+          "strategy": "pfhedge_black_scholes"
+        },
+        {
+          "mean_entropic_risk": 10.211959209467702,
+          "strategy": "pfhedge_whalley_wilmott"
+        }
+      ],
+      "recipe_public_mean_ties": [
+        "v03-residual-best-pointwise",
+        "v04-residual-best-overall"
+      ],
+      "recipe_selected_variant": "v04-residual-best-overall",
+      "strategies": {
+        "our_rate_adapted_ntbn": {
+          "mean_best_epoch": 8800.0,
+          "mean_entropic_risk": 9.657676637063803,
+          "mean_fees_mean": 0.19378399190748113,
+          "mean_fit_and_eval_seconds": 933.4919837191701,
+          "mean_loss_cvar_95": 11.46753731650654,
+          "mean_loss_cvar_99": 12.531028351464592,
+          "mean_pnl_mean": -8.58357189754963,
+          "mean_pnl_std": 1.4629380980999005,
+          "mean_turnover_mean": 1.9452069672352823,
+          "n_seeds": 8,
+          "parameter_count": 3362,
+          "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+          "per_seed_entropic_risk": [
+            9.705495927500985,
+            9.627647771211949,
+            9.649431271762412,
+            9.706360371191556,
+            9.641784289261112,
+            9.645000153004583,
+            9.64327297570365,
+            9.64242033687418
+          ],
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "std_best_epoch": 1461.897006338975,
+          "std_entropic_risk": 0.030425528432266372,
+          "std_fees_mean": 0.008967235865460457,
+          "std_fit_and_eval_seconds": 46.147309170254,
+          "std_loss_cvar_95": 0.034243062541410275,
+          "std_loss_cvar_99": 0.07561792919055076,
+          "std_pnl_mean": 0.008949450906094706,
+          "std_pnl_std": 0.016032269772211987,
+          "std_turnover_mean": 0.08568773603051176
+        },
+        "our_selected_recipe": {
+          "mean_best_epoch": 8775.0,
+          "mean_entropic_risk": 9.624066863210432,
+          "mean_fees_mean": 0.20325751675351525,
+          "mean_fit_and_eval_seconds": 492.4566198085904,
+          "mean_loss_cvar_95": 11.420172291573369,
+          "mean_loss_cvar_99": 12.458945655679845,
+          "mean_pnl_mean": -8.593034170203508,
+          "mean_pnl_std": 1.457004780171394,
+          "mean_turnover_mean": 2.0430294284126163,
+          "n_seeds": 8,
+          "parameter_count": 2433,
+          "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+          "per_seed_entropic_risk": [
+            9.624914334672079,
+            9.626425550481118,
+            9.622157500123995,
+            9.624622189104977,
+            9.623211044302623,
+            9.62315481632701,
+            9.623179512190882,
+            9.62486995848077
+          ],
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "std_best_epoch": 890.826261720785,
+          "std_entropic_risk": 0.0013748910154138014,
+          "std_fees_mean": 0.0008181870723218286,
+          "std_fit_and_eval_seconds": 9.006551955378558,
+          "std_loss_cvar_95": 0.002120954093827476,
+          "std_loss_cvar_99": 0.008733358694459823,
+          "std_pnl_mean": 0.0009378747725764199,
+          "std_pnl_std": 0.0041346548825953455,
+          "std_turnover_mean": 0.00836795941735151
+        },
+        "pfhedge_black_scholes": {
+          "mean_best_epoch": -1.0,
+          "mean_entropic_risk": 10.021277929292902,
+          "mean_fees_mean": 0.22263370253361764,
+          "mean_fit_and_eval_seconds": 0.9470407419721596,
+          "mean_loss_cvar_95": 11.78214729387649,
+          "mean_loss_cvar_99": 13.236093672600898,
+          "mean_pnl_mean": -8.613736064727307,
+          "mean_pnl_std": 1.3385763060029519,
+          "mean_turnover_mean": 2.2324341537332537,
+          "n_seeds": 1,
+          "parameter_count": 0,
+          "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+          "per_seed_entropic_risk": [
+            10.021277929292902
+          ],
+          "seeds": [
+            0
+          ],
+          "std_best_epoch": 0.0,
+          "std_entropic_risk": 0.0,
+          "std_fees_mean": 0.0,
+          "std_fit_and_eval_seconds": 0.0,
+          "std_loss_cvar_95": 0.0,
+          "std_loss_cvar_99": 0.0,
+          "std_pnl_mean": 0.0,
+          "std_pnl_std": 0.0,
+          "std_turnover_mean": 0.0
+        },
+        "pfhedge_mlp": {
+          "mean_best_epoch": 8400.0,
+          "mean_entropic_risk": 9.631750799457894,
+          "mean_fees_mean": 0.2023620660292823,
+          "mean_fit_and_eval_seconds": 497.76244706598663,
+          "mean_loss_cvar_95": 11.42433193041739,
+          "mean_loss_cvar_99": 12.465866593928723,
+          "mean_pnl_mean": -8.591715683680773,
+          "mean_pnl_std": 1.4823158105001537,
+          "mean_turnover_mean": 2.0328922747252136,
+          "n_seeds": 8,
+          "parameter_count": 3361,
+          "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+          "per_seed_entropic_risk": [
+            9.629044733827596,
+            9.633671352062843,
+            9.634315133291787,
+            9.632188211649032,
+            9.633623000099407,
+            9.629414714255601,
+            9.631610984059806,
+            9.630138266417083
+          ],
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "std_best_epoch": 1052.887187010759,
+          "std_entropic_risk": 0.002048019650022995,
+          "std_fees_mean": 0.0021558597683930857,
+          "std_fit_and_eval_seconds": 15.82812095498968,
+          "std_loss_cvar_95": 0.004504915967880845,
+          "std_loss_cvar_99": 0.017320827238948337,
+          "std_pnl_mean": 0.002280757345500042,
+          "std_pnl_std": 0.012183803174134443,
+          "std_turnover_mean": 0.02174393540876016
+        },
+        "pfhedge_ntbn": {
+          "mean_best_epoch": 9200.0,
+          "mean_entropic_risk": 9.647244660503592,
+          "mean_fees_mean": 0.19620174276389182,
+          "mean_fit_and_eval_seconds": 1313.7989835510962,
+          "mean_loss_cvar_95": 11.45480559499615,
+          "mean_loss_cvar_99": 12.502978282374936,
+          "mean_pnl_mean": -8.585973336025477,
+          "mean_pnl_std": 1.4628681704465174,
+          "mean_turnover_mean": 1.9708159472391011,
+          "n_seeds": 8,
+          "parameter_count": 3362,
+          "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+          "per_seed_entropic_risk": [
+            9.631450152967355,
+            9.62911691307209,
+            9.667896216596704,
+            9.63480494983614,
+            9.643776999086297,
+            9.632774371702729,
+            9.688668258675856,
+            9.649469422091572
+          ],
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "std_best_epoch": 1792.0459177790538,
+          "std_entropic_risk": 0.021049577020369706,
+          "std_fees_mean": 0.010708588030915787,
+          "std_fit_and_eval_seconds": 48.414337767637534,
+          "std_loss_cvar_95": 0.020019770731592158,
+          "std_loss_cvar_99": 0.046449276653556505,
+          "std_pnl_mean": 0.010798466845216792,
+          "std_pnl_std": 0.014471140837343494,
+          "std_turnover_mean": 0.10970253689057903
+        },
+        "pfhedge_whalley_wilmott": {
+          "mean_best_epoch": -1.0,
+          "mean_entropic_risk": 10.211959209467702,
+          "mean_fees_mean": 0.15189733515687287,
+          "mean_fit_and_eval_seconds": 0.6375317699857987,
+          "mean_loss_cvar_95": 11.958570448500327,
+          "mean_loss_cvar_99": 13.427058660067045,
+          "mean_pnl_mean": -8.542887857353689,
+          "mean_pnl_std": 1.52244738542732,
+          "mean_turnover_mean": 1.5223197229099275,
+          "n_seeds": 1,
+          "parameter_count": 0,
+          "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+          "per_seed_entropic_risk": [
+            10.211959209467702
+          ],
+          "seeds": [
+            0
+          ],
+          "std_best_epoch": 0.0,
+          "std_entropic_risk": 0.0,
+          "std_fees_mean": 0.0,
+          "std_fit_and_eval_seconds": 0.0,
+          "std_loss_cvar_95": 0.0,
+          "std_loss_cvar_99": 0.0,
+          "std_pnl_mean": 0.0,
+          "std_pnl_std": 0.0,
+          "std_turnover_mean": 0.0
+        }
+      },
+      "xi": 0.1
+    },
+    "heston-xi03": {
+      "official_ntbn_vs_rate_adapted_ntbn": {
+        "candidate_wins": 8,
+        "difference_definition": "candidate entropic risk - reference entropic risk; negative favors candidate",
+        "mean_difference_95ci": [
+          -0.03194449034507276,
+          -0.006792460726082505
+        ],
+        "mean_paired_difference": -0.019368475535577634,
+        "n_pairs": 8,
+        "paired_differences": [
+          -0.0015799877151820851,
+          -0.0313734440922282,
+          -0.03307470134188506,
+          -0.0009838665993484597,
+          -0.0221585571899503,
+          -0.020833460499517287,
+          -0.03932987831372614,
+          -0.00561390853278354
+        ],
+        "paired_ttest_pvalue_descriptive": 0.008267472225104325,
+        "reference": "DeepHedger-NTBN-v1",
+        "std_paired_difference": 0.01504270345887979
+      },
+      "paired_vs_our_selected_recipe": {
+        "mlp": {
+          "candidate_wins": 1,
+          "difference_definition": "candidate entropic risk - reference entropic risk; negative favors candidate",
+          "mean_difference_95ci": [
+            0.014868865009211245,
+            0.0789654453448807
+          ],
+          "mean_paired_difference": 0.04691715517704598,
+          "n_pairs": 8,
+          "paired_differences": [
+            0.08732750783185494,
+            -0.005732660712499893,
+            0.08952421931592269,
+            0.05982245423568955,
+            0.00426707895548617,
+            0.07934842137070675,
+            0.045924388982868436,
+            0.014855831436339173
+          ],
+          "paired_ttest_pvalue_descriptive": 0.010523386803538261,
+          "reference": "v04-residual-best-overall",
+          "std_paired_difference": 0.03833431597065879
+        },
+        "ntbn": {
+          "candidate_wins": 7,
+          "difference_definition": "candidate entropic risk - reference entropic risk; negative favors candidate",
+          "mean_difference_95ci": [
+            -0.07813114213139485,
+            -0.020670827949408305
+          ],
+          "mean_paired_difference": -0.04940098504040158,
+          "n_pairs": 8,
+          "paired_differences": [
+            -0.055179635093391965,
+            -0.09061036964533642,
+            -0.0690298135635743,
+            0.024585647024490953,
+            -0.06901515844837647,
+            -0.032759139838642426,
+            -0.050084816863066095,
+            -0.05311459389531592
+          ],
+          "paired_ttest_pvalue_descriptive": 0.004773704098326225,
+          "reference": "v04-residual-best-overall",
+          "std_paired_difference": 0.034365356592975765
+        }
+      },
+      "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+      "ranking": [
+        {
+          "mean_entropic_risk": 10.864372352882947,
+          "strategy": "pfhedge_ntbn"
+        },
+        {
+          "mean_entropic_risk": 10.883740828418524,
+          "strategy": "our_rate_adapted_ntbn"
+        },
+        {
+          "mean_entropic_risk": 10.913773337923349,
+          "strategy": "our_selected_recipe"
+        },
+        {
+          "mean_entropic_risk": 10.960690493100396,
+          "strategy": "pfhedge_mlp"
+        },
+        {
+          "mean_entropic_risk": 11.796392038548044,
+          "strategy": "pfhedge_whalley_wilmott"
+        },
+        {
+          "mean_entropic_risk": 11.896143952749762,
+          "strategy": "pfhedge_black_scholes"
+        }
+      ],
+      "recipe_public_mean_ties": [
+        "v04-residual-best-overall"
+      ],
+      "recipe_selected_variant": "v04-residual-best-overall",
+      "strategies": {
+        "our_rate_adapted_ntbn": {
+          "mean_best_epoch": 8350.0,
+          "mean_entropic_risk": 10.883740828418524,
+          "mean_fees_mean": 0.183446070397133,
+          "mean_fit_and_eval_seconds": 944.865476383653,
+          "mean_loss_cvar_95": 12.669873595881333,
+          "mean_loss_cvar_99": 14.150204754256821,
+          "mean_pnl_mean": -8.329792788162829,
+          "mean_pnl_std": 2.0562743438274387,
+          "mean_turnover_mean": 1.8385778898427636,
+          "n_seeds": 8,
+          "parameter_count": 3362,
+          "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+          "per_seed_entropic_risk": [
+            10.853555107443993,
+            10.871619773338859,
+            10.879574126773354,
+            10.943314757506608,
+            10.868620302980142,
+            10.876929643690664,
+            10.909542440548092,
+            10.86677047506649
+          ],
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "std_best_epoch": 1437.2592966177974,
+          "std_entropic_risk": 0.02891675432512079,
+          "std_fees_mean": 0.010703294782457315,
+          "std_fit_and_eval_seconds": 48.87897664133228,
+          "std_loss_cvar_95": 0.04176864206760944,
+          "std_loss_cvar_99": 0.038178541605777376,
+          "std_pnl_mean": 0.010717386295923656,
+          "std_pnl_std": 0.021959314548109277,
+          "std_turnover_mean": 0.10009822407395226
+        },
+        "our_selected_recipe": {
+          "mean_best_epoch": 8225.0,
+          "mean_entropic_risk": 10.913773337923349,
+          "mean_fees_mean": 0.16083140939690174,
+          "mean_fit_and_eval_seconds": 608.9412066524601,
+          "mean_loss_cvar_95": 12.713390864507838,
+          "mean_loss_cvar_99": 14.230414222646784,
+          "mean_pnl_mean": -8.309276642858089,
+          "mean_pnl_std": 2.0980695435632515,
+          "mean_turnover_mean": 1.6117642537058892,
+          "n_seeds": 8,
+          "parameter_count": 2433,
+          "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+          "per_seed_entropic_risk": [
+            10.907154754822203,
+            10.930856698891967,
+            10.915529238995044,
+            10.917745243882768,
+            10.915476904238568,
+            10.888855323029789,
+            10.920297379097432,
+            10.914271160429022
+          ],
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "std_best_epoch": 1328.5330255586423,
+          "std_entropic_risk": 0.012077881996734064,
+          "std_fees_mean": 0.001879714818237435,
+          "std_fit_and_eval_seconds": 16.50219449583538,
+          "std_loss_cvar_95": 0.022087798775089547,
+          "std_loss_cvar_99": 0.02083452569133407,
+          "std_pnl_mean": 0.0020079925201579875,
+          "std_pnl_std": 0.02031823809396098,
+          "std_turnover_mean": 0.019903758983434442
+        },
+        "pfhedge_black_scholes": {
+          "mean_best_epoch": -1.0,
+          "mean_entropic_risk": 11.896143952749762,
+          "mean_fees_mean": 0.2260115127693117,
+          "mean_fit_and_eval_seconds": 0.5817427139845677,
+          "mean_loss_cvar_95": 13.050192756668087,
+          "mean_loss_cvar_99": 14.799701873596375,
+          "mean_pnl_mean": -8.377906883084774,
+          "mean_pnl_std": 1.9781785877404765,
+          "mean_turnover_mean": 2.253936210176945,
+          "n_seeds": 1,
+          "parameter_count": 0,
+          "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+          "per_seed_entropic_risk": [
+            11.896143952749762
+          ],
+          "seeds": [
+            0
+          ],
+          "std_best_epoch": 0.0,
+          "std_entropic_risk": 0.0,
+          "std_fees_mean": 0.0,
+          "std_fit_and_eval_seconds": 0.0,
+          "std_loss_cvar_95": 0.0,
+          "std_loss_cvar_99": 0.0,
+          "std_pnl_mean": 0.0,
+          "std_pnl_std": 0.0,
+          "std_turnover_mean": 0.0
+        },
+        "pfhedge_mlp": {
+          "mean_best_epoch": 6675.0,
+          "mean_entropic_risk": 10.960690493100396,
+          "mean_fees_mean": 0.18085264778338375,
+          "mean_fit_and_eval_seconds": 496.236173195226,
+          "mean_loss_cvar_95": 12.650928937061098,
+          "mean_loss_cvar_99": 14.147919004018252,
+          "mean_pnl_mean": -8.327315545814187,
+          "mean_pnl_std": 2.115764069184005,
+          "mean_turnover_mean": 1.810465111909807,
+          "n_seeds": 8,
+          "parameter_count": 3361,
+          "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+          "per_seed_entropic_risk": [
+            10.994482262654058,
+            10.925124038179467,
+            11.005053458310966,
+            10.977567698118458,
+            10.919743983194055,
+            10.968203744400496,
+            10.9662217680803,
+            10.929126991865362
+          ],
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "std_best_epoch": 2070.024154448445,
+          "std_entropic_risk": 0.032556948717225045,
+          "std_fees_mean": 0.00294824701916953,
+          "std_fit_and_eval_seconds": 20.466072317839608,
+          "std_loss_cvar_95": 0.04208262057457466,
+          "std_loss_cvar_99": 0.021894726925743093,
+          "std_pnl_mean": 0.003148470721905745,
+          "std_pnl_std": 0.025227793761088205,
+          "std_turnover_mean": 0.02972234093229131
+        },
+        "pfhedge_ntbn": {
+          "mean_best_epoch": 8300.0,
+          "mean_entropic_risk": 10.864372352882947,
+          "mean_fees_mean": 0.18140408469066027,
+          "mean_fit_and_eval_seconds": 1316.936085461537,
+          "mean_loss_cvar_95": 12.689834133764906,
+          "mean_loss_cvar_99": 14.16334749185122,
+          "mean_pnl_mean": -8.327722753086686,
+          "mean_pnl_std": 2.0572753108738,
+          "mean_turnover_mean": 1.8171473360152544,
+          "n_seeds": 8,
+          "parameter_count": 3362,
+          "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+          "per_seed_entropic_risk": [
+            10.851975119728811,
+            10.84024632924663,
+            10.84649942543147,
+            10.94233089090726,
+            10.846461745790192,
+            10.856096183191147,
+            10.870212562234366,
+            10.861156566533706
+          ],
+          "seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "std_best_epoch": 1195.2286093343937,
+          "std_entropic_risk": 0.03287740377146353,
+          "std_fees_mean": 0.010566345635896032,
+          "std_fit_and_eval_seconds": 49.49071768841679,
+          "std_loss_cvar_95": 0.04530000246703674,
+          "std_loss_cvar_99": 0.04268937321354722,
+          "std_pnl_mean": 0.010793497591369215,
+          "std_pnl_std": 0.02201568205592093,
+          "std_turnover_mean": 0.09998396875082015
+        },
+        "pfhedge_whalley_wilmott": {
+          "mean_best_epoch": -1.0,
+          "mean_entropic_risk": 11.796392038548044,
+          "mean_fees_mean": 0.15495050034008923,
+          "mean_fit_and_eval_seconds": 0.6437549410038628,
+          "mean_loss_cvar_95": 13.331662927477675,
+          "mean_loss_cvar_99": 15.083361113107168,
+          "mean_pnl_mean": -8.308645943074227,
+          "mean_pnl_std": 2.1419683847227047,
+          "mean_turnover_mean": 1.5459755189824105,
+          "n_seeds": 1,
+          "parameter_count": 0,
+          "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+          "per_seed_entropic_risk": [
+            11.796392038548044
+          ],
+          "seeds": [
+            0
+          ],
+          "std_best_epoch": 0.0,
+          "std_entropic_risk": 0.0,
+          "std_fees_mean": 0.0,
+          "std_fit_and_eval_seconds": 0.0,
+          "std_loss_cvar_95": 0.0,
+          "std_loss_cvar_99": 0.0,
+          "std_pnl_mean": 0.0,
+          "std_pnl_std": 0.0,
+          "std_turnover_mean": 0.0
+        }
+      },
+      "xi": 0.3
+    }
+  },
+  "n_completed_configs": 36,
+  "pfhedge_version": "0.23.0",
+  "pfhedge_wheel_sha256": "c5fc81860c2442b0c0b5896e041b544a2893d7893b0bb959c8fa2bbbb21b2dd7",
+  "score_direction": "lower entropic risk is better"
+}

@@ -1,0 +1,65 @@
+experiment = "PFHedge-Official-v1"
+n_markets = 2
+n_seeds = 8
+n_deterministic_configs = 4
+n_trainable_configs = 32
+n_configs = 36
+public_seed = 20260724
+public_paths = 100000
+private_access = false
+pfhedge_version = "0.23.0"
+pfhedge_wheel = "vendor/pfhedge-0.23.0-py3-none-any.whl"
+pfhedge_wheel_sha256 = "c5fc81860c2442b0c0b5896e041b544a2893d7893b0bb959c8fa2bbbb21b2dd7"
+models = [
+    "black_scholes",
+    "mlp",
+    "ntbn",
+    "whalley_wilmott",
+]
+config_directories = [
+    "exp/PFHedge-Official-v1/heston-xi01/public/deterministic/black_scholes",
+    "exp/PFHedge-Official-v1/heston-xi01/public/deterministic/whalley_wilmott",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-000/mlp",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-000/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-001/mlp",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-001/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-002/mlp",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-002/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-003/mlp",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-003/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-004/mlp",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-004/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-005/mlp",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-005/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-006/mlp",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-006/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-007/mlp",
+    "exp/PFHedge-Official-v1/heston-xi01/public/seed-007/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi03/public/deterministic/black_scholes",
+    "exp/PFHedge-Official-v1/heston-xi03/public/deterministic/whalley_wilmott",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-000/mlp",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-000/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-001/mlp",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-001/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-002/mlp",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-002/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-003/mlp",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-003/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-004/mlp",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-004/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-005/mlp",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-005/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-006/mlp",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-006/ntbn",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-007/mlp",
+    "exp/PFHedge-Official-v1/heston-xi03/public/seed-007/ntbn",
+]
+
+[common_protocol]
+market_differences = "xi only"
+accounting = "discounted"
+objective = "entropic_risk_gamma_1"
+transaction_cost = 0.001
+n_steps = 30
+trainable_budget = "10000 updates x 3000 fresh paths"
+selection = "minimum public entropic risk"

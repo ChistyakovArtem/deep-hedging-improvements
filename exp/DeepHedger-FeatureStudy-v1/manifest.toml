@@ -1,0 +1,28 @@
+experiment = "DeepHedger-FeatureStudy-v1"
+n_markets = 2
+n_variants = 4
+n_configs = 8
+training_seed = 0
+public_seed = 20260724
+public_paths = 100000
+private_access = false
+config_directories = [
+    "exp/DeepHedger-FeatureStudy-v1/heston-xi01/public/legacy-raw-shared",
+    "exp/DeepHedger-FeatureStudy-v1/heston-xi01/public/normalized-shared",
+    "exp/DeepHedger-FeatureStudy-v1/heston-xi01/public/paper-shared-time",
+    "exp/DeepHedger-FeatureStudy-v1/heston-xi01/public/paper-per-step",
+    "exp/DeepHedger-FeatureStudy-v1/heston-xi03/public/legacy-raw-shared",
+    "exp/DeepHedger-FeatureStudy-v1/heston-xi03/public/normalized-shared",
+    "exp/DeepHedger-FeatureStudy-v1/heston-xi03/public/paper-shared-time",
+    "exp/DeepHedger-FeatureStudy-v1/heston-xi03/public/paper-per-step",
+]
+
+[common_protocol]
+market_differences = "xi only"
+accounting = "discounted"
+objective = "entropic_risk_gamma_1"
+transaction_cost = 0.001
+n_steps = 30
+no_paf = true
+no_running_pnl = true
+stock_only = true

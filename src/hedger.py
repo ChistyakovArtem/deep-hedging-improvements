@@ -16,7 +16,11 @@ from src.market import TorchHestonStream
 @dataclass(frozen=True)
 class DeepHedgerConfig:
     architecture: str = "mlp"
+    feature_mode: str = "normalized"
+    time_parameterization: str = "shared"
     hidden_dims: tuple[int, ...] = (64, 32)
+    activation: str = "leaky_relu"
+    batch_norm: bool = False
     n_frequencies: int = 16
     paf_sigma: float = 1.0
     periodic_include_linear: bool = False
@@ -32,6 +36,37 @@ class DeepHedgerConfig:
         if self.architecture not in allowed:
             raise ValueError(
                 f"Unknown architecture {self.architecture!r}; expected {sorted(allowed)}."
+            )
+        feature_modes = {
+            "normalized",
+            "legacy_raw",
+            "paper_log_state_with_time",
+            "paper_log_state",
+        }
+        if self.feature_mode not in feature_modes:
+            raise ValueError(
+                f"Unknown feature mode {self.feature_mode!r}; "
+                f"expected {sorted(feature_modes)}."
+            )
+        if self.time_parameterization not in {"shared", "per_step"}:
+            raise ValueError("time_parameterization must be 'shared' or 'per_step'.")
+        if self.activation not in {"leaky_relu", "relu"}:
+            raise ValueError("activation must be 'leaky_relu' or 'relu'.")
+        if self.architecture != "mlp" and (
+            self.feature_mode != "normalized"
+            or self.time_parameterization != "shared"
+        ):
+            raise ValueError(
+                "Periodic architectures currently require normalized features "
+                "and shared time parameterization."
+            )
+        if (
+            self.time_parameterization == "per_step"
+            and self.feature_mode != "paper_log_state"
+        ):
+            raise ValueError(
+                "Per-step networks require paper_log_state, where time is "
+                "implicit in the selected network."
             )
         if self.optimizer != "adam":
             raise ValueError("Stage 1 intentionally supports only Adam.")
@@ -85,11 +120,10 @@ class _PeriodicEmbedding(nn.Module):
 
 
 class _Policy(nn.Module):
-    def __init__(self, config: DeepHedgerConfig):
+    def __init__(self, config: DeepHedgerConfig, input_dim: int):
         super().__init__()
         if config.architecture == "mlp":
             self.embedding = None
-            input_dim = 4
         else:
             self.embedding = _PeriodicEmbedding(
                 kind=config.architecture,
@@ -103,7 +137,13 @@ class _Policy(nn.Module):
         layers: list[nn.Module] = []
         previous_dim = input_dim
         for hidden_dim in config.hidden_dims:
-            layers.extend((nn.Linear(previous_dim, hidden_dim), nn.LeakyReLU(0.01)))
+            layers.append(nn.Linear(previous_dim, hidden_dim))
+            if config.batch_norm:
+                layers.append(nn.BatchNorm1d(hidden_dim))
+            if config.activation == "relu":
+                layers.append(nn.ReLU())
+            else:
+                layers.append(nn.LeakyReLU(0.01))
             previous_dim = hidden_dim
         layers.append(nn.Linear(previous_dim, 1))
         self.mlp = nn.Sequential(*layers)
@@ -141,7 +181,13 @@ class DeepHedger:
             device if device is not None else ("cuda" if torch.cuda.is_available() else "cpu")
         )
         self._set_seed(config.seed)
-        self.policy = _Policy(config).to(self.device)
+        input_dim = self._input_dim()
+        if config.time_parameterization == "per_step":
+            self.policy: _Policy | nn.ModuleList = nn.ModuleList(
+                _Policy(config, input_dim) for _ in range(int(self.market["N"]))
+            ).to(self.device)
+        else:
+            self.policy = _Policy(config, input_dim).to(self.device)
         self.best_epoch: int | None = None
         self.best_public_risk: float | None = None
         self.training_log: list[dict[str, float | int]] = []
@@ -160,15 +206,35 @@ class DeepHedger:
         time_ratio = 1.0 - step / int(self.market["N"])
         spot = paths[:, step, 0]
         variance = paths[:, step, 1]
-        return torch.stack(
-            (
+        time_feature = torch.full_like(spot, time_ratio)
+        if self.config.feature_mode == "legacy_raw":
+            values = (spot, variance, time_feature, previous_hedge)
+        elif self.config.feature_mode == "normalized":
+            values = (
                 torch.log(spot / float(self.market["K"])),
                 variance / float(self.market["theta"]),
-                torch.full_like(spot, time_ratio),
+                time_feature,
                 previous_hedge,
-            ),
-            dim=1,
-        )
+            )
+        elif self.config.feature_mode == "paper_log_state_with_time":
+            values = (torch.log(spot), variance, time_feature, previous_hedge)
+        elif self.config.feature_mode == "paper_log_state":
+            values = (torch.log(spot), variance, previous_hedge)
+        else:  # guarded by DeepHedgerConfig.validate()
+            raise RuntimeError(f"Unsupported feature mode: {self.config.feature_mode}")
+        return torch.stack(values, dim=1)
+
+    def _input_dim(self) -> int:
+        if self.config.architecture != "mlp":
+            return 4
+        if self.config.feature_mode == "paper_log_state":
+            return 3
+        return 4
+
+    def _policy_for_step(self, step: int) -> _Policy:
+        if isinstance(self.policy, nn.ModuleList):
+            return self.policy[step]
+        return self.policy
 
     def predict_actions(self, paths: torch.Tensor) -> torch.Tensor:
         if paths.device != self.device:
@@ -177,7 +243,9 @@ class DeepHedger:
         previous = torch.zeros(n_paths, device=self.device, dtype=paths.dtype)
         actions = []
         for step in range(int(self.market["N"])):
-            action = self.policy(self._features(paths, step, previous))
+            action = self._policy_for_step(step)(
+                self._features(paths, step, previous)
+            )
             actions.append(action)
             previous = action
         return torch.stack(actions, dim=1)

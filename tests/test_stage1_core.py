@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 import torch
+from torch import nn
 
 from deep_hedger import DeepHedger as PublicDeepHedger
 from src.evaluation import backtest_actions, entropic_risk
@@ -89,6 +90,68 @@ def test_one_class_builds_every_stage1_architecture() -> None:
         assert actions.shape == (16, 3)
         assert outputs["pnl"].shape == (16,)
         assert torch.isfinite(actions).all()
+
+
+def test_feature_study_modes_have_the_declared_inputs_and_time_sharing() -> None:
+    paths = torch.tensor(
+        [[[100.0, 0.04], [110.0, 0.05], [105.0, 0.03], [120.0, 0.06]]]
+    )
+    previous = torch.tensor([0.25])
+    expected = {
+        "legacy_raw": torch.tensor([[100.0, 0.04, 1.0, 0.25]]),
+        "normalized": torch.tensor([[0.0, 1.0, 1.0, 0.25]]),
+        "paper_log_state_with_time": torch.tensor(
+            [[np.log(100.0), 0.04, 1.0, 0.25]], dtype=torch.float32
+        ),
+        "paper_log_state": torch.tensor(
+            [[np.log(100.0), 0.04, 0.25]], dtype=torch.float32
+        ),
+    }
+    for feature_mode, values in expected.items():
+        time_parameterization = (
+            "per_step" if feature_mode == "paper_log_state" else "shared"
+        )
+        hedger = DeepHedger(
+            MARKET,
+            OBJECTIVE,
+            config=DeepHedgerConfig(
+                feature_mode=feature_mode,
+                time_parameterization=time_parameterization,
+                hidden_dims=(16, 16),
+                activation="relu",
+                batch_norm=feature_mode.startswith("paper_"),
+                n_epochs=1,
+                paths_per_epoch=8,
+                validation_interval=1,
+            ),
+            device="cpu",
+        )
+        assert torch.allclose(hedger._features(paths, 0, previous), values)
+        if time_parameterization == "per_step":
+            assert isinstance(hedger.policy, nn.ModuleList)
+            assert len(hedger.policy) == MARKET["N"]
+        else:
+            assert not isinstance(hedger.policy, nn.ModuleList)
+
+
+def test_paper_style_policy_uses_batch_norm_before_relu() -> None:
+    hedger = DeepHedger(
+        MARKET,
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            feature_mode="paper_log_state_with_time",
+            hidden_dims=(16, 16),
+            activation="relu",
+            batch_norm=True,
+        ),
+        device="cpu",
+    )
+    modules = list(hedger.policy.mlp)
+    assert [type(module) for module in modules[:3]] == [
+        nn.Linear,
+        nn.BatchNorm1d,
+        nn.ReLU,
+    ]
 
 
 def test_snapshot_restore_republishes_completed_prefix(

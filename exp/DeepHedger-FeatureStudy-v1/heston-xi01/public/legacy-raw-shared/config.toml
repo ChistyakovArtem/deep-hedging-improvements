@@ -1,0 +1,85 @@
+seed = 0
+
+[experiment]
+name = "DeepHedger-FeatureStudy-v1"
+purpose = "estimate Vanilla DH versus mathematical deltas"
+market = "heston-xi01"
+split = "public"
+config_id = 0
+variant = "legacy-raw-shared"
+model = "DeepHedger"
+
+[market]
+model = "heston"
+scheme = "full_truncation_euler"
+S0 = 100.0
+K = 100.0
+v0 = 0.04
+r = 0.01
+kappa = 2.0
+theta = 0.04
+xi = 0.1
+rho = -0.7
+T = 1.0
+N = 30
+transaction_cost = 0.001
+accounting = "discounted"
+payoff = "european_call"
+
+[objective]
+name = "entropic_risk"
+risk_aversion = 1.0
+pnl_scale = 1.0
+score_direction = "higher"
+score_definition = "score = -entropic_risk"
+
+[leaderboard]
+name = "feature-study-xi01-public"
+n_paths = 100000
+seed = 20260724
+paths_sha256 = "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89"
+allowed_uses = [
+    "checkpoint_selection",
+    "diagnostic_reporting",
+]
+
+[model]
+architecture = "mlp"
+feature_mode = "legacy_raw"
+feature_names = [
+    "spot",
+    "variance",
+    "time_ratio",
+    "previous_hedge",
+]
+time_parameterization = "shared"
+hidden_dims = [
+    64,
+    64,
+]
+activation = "leaky_relu"
+batch_norm = false
+initialization = "torch-default"
+n_frequencies = 16
+paf_sigma = 1.0
+periodic_include_linear = false
+
+[training]
+optimizer = "adam"
+learning_rate = 0.001
+n_epochs = 10000
+paths_per_epoch = 3000
+validation_interval = 200
+
+[evaluation]
+leaderboards = [
+    "public",
+]
+save_predictions = true
+private_access = false
+
+[provenance]
+description = "archived coursework Vanilla DH"
+paper_architecture_rule = "not applicable"
+paper_training_conventions = "not applicable"
+common_changes_from_paper = "not applicable"

@@ -1,0 +1,37 @@
+{
+  "activation": "leaky_relu",
+  "batch_norm": false,
+  "best_epoch": 9000,
+  "entropic_risk": 10.457470014260947,
+  "feature_mode": "legacy_raw",
+  "feature_names": [
+    "spot",
+    "variance",
+    "time_ratio",
+    "previous_hedge"
+  ],
+  "fees_mean": 0.2184287632147968,
+  "fit_and_eval_seconds": 432.6772929187864,
+  "hidden_dims": [
+    64,
+    64
+  ],
+  "leaderboard": "public",
+  "learning_rate": 0.001,
+  "loss_cvar_95": 12.413736289416615,
+  "loss_cvar_99": 13.65784564766136,
+  "n_paths": 100000,
+  "optimizer": "adam",
+  "parameter_count": 4545,
+  "paths_per_epoch": 3000,
+  "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+  "pnl_mean": -8.606631095454693,
+  "pnl_std": 2.0582842342003667,
+  "score": -10.457470014260947,
+  "seed": 0,
+  "smoke": false,
+  "time_parameterization": "shared",
+  "turnover_mean": 2.1859958317363266,
+  "variant": "legacy-raw-shared",
+  "xi": 0.1
+}

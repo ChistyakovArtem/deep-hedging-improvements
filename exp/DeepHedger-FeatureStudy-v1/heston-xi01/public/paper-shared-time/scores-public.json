@@ -1,0 +1,37 @@
+{
+  "activation": "relu",
+  "batch_norm": true,
+  "best_epoch": 6200,
+  "entropic_risk": 49.7092606018242,
+  "feature_mode": "paper_log_state_with_time",
+  "feature_names": [
+    "log_spot",
+    "variance",
+    "time_ratio",
+    "previous_hedge"
+  ],
+  "fees_mean": 0.39004143394581975,
+  "fit_and_eval_seconds": 444.3978639766574,
+  "hidden_dims": [
+    16,
+    16
+  ],
+  "leaderboard": "public",
+  "learning_rate": 0.005,
+  "loss_cvar_95": 29.079198615309284,
+  "loss_cvar_99": 37.229685540442226,
+  "n_paths": 100000,
+  "optimizer": "adam",
+  "parameter_count": 433,
+  "paths_per_epoch": 256,
+  "paths_sha256": "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89",
+  "pnl_mean": -8.760164131947887,
+  "pnl_std": 7.789239330128068,
+  "score": -49.7092606018242,
+  "seed": 0,
+  "smoke": false,
+  "time_parameterization": "shared",
+  "turnover_mean": 4.847123668714166,
+  "variant": "paper-shared-time",
+  "xi": 0.1
+}

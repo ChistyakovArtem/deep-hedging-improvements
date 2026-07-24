@@ -1,0 +1,27 @@
+score: -10.021355503100311
+entropic_risk: 10.021355503100311
+pnl_mean: -8.626290244133473
+pnl_std: 1.6452860633855226
+loss_cvar_95: 11.92792578454829
+loss_cvar_99: 13.104746511766127
+fees_mean: 0.23789076958224178
+turnover_mean: 2.382994312540293
+n_paths: 100000
+leaderboard: public
+paths_sha256: 70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89
+seed: 0
+xi: 0.1
+variant: paper-per-step
+feature_mode: paper_log_state
+feature_names: ['log_spot', 'variance', 'previous_hedge']
+time_parameterization: per_step
+hidden_dims: [16, 16]
+activation: relu
+batch_norm: True
+optimizer: adam
+learning_rate: 0.005
+paths_per_epoch: 256
+parameter_count: 12510
+best_epoch: 9400
+fit_and_eval_seconds: 564.6908869054168
+smoke: False

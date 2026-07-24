@@ -22,12 +22,12 @@ def _hedger_config(config: dict) -> DeepHedgerConfig:
     return DeepHedgerConfig(
         architecture=str(model["architecture"]),
         feature_mode=str(model["feature_mode"]),
-        prediction_target=str(model.get("prediction_target", "direct")),
+        prediction_target=str(model["prediction_target"]),
         time_parameterization=str(model["time_parameterization"]),
         hidden_dims=tuple(int(x) for x in model["hidden_dims"]),
         activation=str(model["activation"]),
         batch_norm=bool(model["batch_norm"]),
-        output_initialization=str(model.get("output_initialization", "default")),
+        output_initialization=str(model["output_initialization"]),
         n_frequencies=int(model["n_frequencies"]),
         paf_sigma=float(model["paf_sigma"]),
         periodic_include_linear=bool(model["periodic_include_linear"]),
@@ -41,18 +41,32 @@ def _hedger_config(config: dict) -> DeepHedgerConfig:
 
 
 def _validate(config: dict) -> None:
-    if config["experiment"]["name"] != "DeepHedger-FeatureStudy-v1":
+    if config["experiment"]["name"] != "DeepHedger-BSDeviation-v1":
         raise ValueError("Unexpected experiment name.")
-    if config["model"]["architecture"] != "mlp":
-        raise ValueError("The feature study is Vanilla MLP only; PAF is excluded.")
+    model = config["model"]
+    expected = {
+        "architecture": "mlp",
+        "feature_mode": "local_bs_state",
+        "prediction_target": "local_bs_deviation",
+        "time_parameterization": "shared",
+        "activation": "leaky_relu",
+        "output_initialization": "zero_last",
+    }
+    for key, value in expected.items():
+        if model[key] != value:
+            raise ValueError(f"Expected model.{key}={value!r}, got {model[key]!r}.")
+    if list(model["hidden_dims"]) != [64, 32]:
+        raise ValueError("The merged baseline requires the standard [64, 32] MLP.")
+    if bool(model["batch_norm"]):
+        raise ValueError("The merged baseline does not use batch normalization.")
     if config["evaluation"]["leaderboards"] != ["public"]:
-        raise ValueError("Feature-study candidates may access only the public board.")
+        raise ValueError("BS-deviation candidates may access only the public board.")
     if bool(config["evaluation"]["private_access"]):
-        raise ValueError("Feature-study candidates may not access private data.")
+        raise ValueError("BS-deviation candidates may not access private data.")
     if float(config["market"]["xi"]) not in {0.1, 0.3}:
-        raise ValueError("The feature study is restricted to xi in {0.1, 0.3}.")
+        raise ValueError("The experiment is restricted to xi in {0.1, 0.3}.")
     if config["market"]["accounting"] != "discounted":
-        raise ValueError("All feature-study cells require discounted accounting.")
+        raise ValueError("The experiment requires discounted accounting.")
 
 
 def run(config_dir: Path, device: str, smoke: bool) -> Path:
@@ -62,11 +76,10 @@ def run(config_dir: Path, device: str, smoke: bool) -> Path:
 
     market = config["market"]
     objective = config["objective"]
-    leaderboard = config["leaderboard"]
     public_paths, public_metadata = materialize_leaderboard(
         PROJECT_ROOT,
         market,
-        leaderboard,
+        config["leaderboard"],
     )
     hedger_config = _hedger_config(config)
     output_dir = config_dir
@@ -105,13 +118,13 @@ def run(config_dir: Path, device: str, smoke: bool) -> Path:
             "paths_sha256": public_metadata["paths_sha256"],
             "seed": int(config["seed"]),
             "xi": float(market["xi"]),
-            "variant": str(config["experiment"]["variant"]),
+            "architecture": str(config["model"]["architecture"]),
             "feature_mode": str(config["model"]["feature_mode"]),
             "feature_names": list(config["model"]["feature_names"]),
-            "time_parameterization": str(config["model"]["time_parameterization"]),
+            "prediction_target": str(config["model"]["prediction_target"]),
+            "output_initialization": str(config["model"]["output_initialization"]),
             "hidden_dims": list(config["model"]["hidden_dims"]),
             "activation": str(config["model"]["activation"]),
-            "batch_norm": bool(config["model"]["batch_norm"]),
             "optimizer": str(config["training"]["optimizer"]),
             "learning_rate": float(config["training"]["learning_rate"]),
             "paths_per_epoch": int(config["training"]["paths_per_epoch"]),
@@ -120,6 +133,7 @@ def run(config_dir: Path, device: str, smoke: bool) -> Path:
             ),
             "best_epoch": int(hedger.best_epoch or -1),
             "fit_and_eval_seconds": time.perf_counter() - started,
+            "primary_comparator": str(config["comparison"]["primary"]),
             "smoke": smoke,
         }
     )

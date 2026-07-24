@@ -59,9 +59,7 @@ def test_discounted_zero_hedge_accounting() -> None:
     )
     actions = torch.zeros((2, 3))
     outputs = backtest_actions(paths, actions, MARKET)
-    expected = torch.tensor(
-        [-30.0 * np.exp(-0.01), 0.0], dtype=outputs["pnl"].dtype
-    )
+    expected = torch.tensor([-30.0 * np.exp(-0.01), 0.0], dtype=outputs["pnl"].dtype)
     assert torch.allclose(outputs["pnl"], expected, atol=1e-6)
     assert torch.equal(outputs["fees"], torch.zeros(2))
 
@@ -105,9 +103,7 @@ def test_one_class_builds_every_stage1_architecture() -> None:
 
 
 def test_feature_study_modes_have_the_declared_inputs_and_time_sharing() -> None:
-    paths = torch.tensor(
-        [[[100.0, 0.04], [110.0, 0.05], [105.0, 0.03], [120.0, 0.06]]]
-    )
+    paths = torch.tensor([[[100.0, 0.04], [110.0, 0.05], [105.0, 0.03], [120.0, 0.06]]])
     previous = torch.tensor([0.25])
     expected = {
         "legacy_raw": torch.tensor([[100.0, 0.04, 1.0, 0.25]]),
@@ -115,14 +111,10 @@ def test_feature_study_modes_have_the_declared_inputs_and_time_sharing() -> None
         "paper_log_state_with_time": torch.tensor(
             [[np.log(100.0), 0.04, 1.0, 0.25]], dtype=torch.float32
         ),
-        "paper_log_state": torch.tensor(
-            [[np.log(100.0), 0.04, 0.25]], dtype=torch.float32
-        ),
+        "paper_log_state": torch.tensor([[np.log(100.0), 0.04, 0.25]], dtype=torch.float32),
     }
     for feature_mode, values in expected.items():
-        time_parameterization = (
-            "per_step" if feature_mode == "paper_log_state" else "shared"
-        )
+        time_parameterization = "per_step" if feature_mode == "paper_log_state" else "shared"
         hedger = DeepHedger(
             MARKET,
             OBJECTIVE,
@@ -179,15 +171,13 @@ def test_ntbn_features_and_local_black_scholes_center() -> None:
         ),
         device="cpu",
     )
-    paths = torch.tensor(
-        [[[100.0, 0.04], [110.0, 0.05], [105.0, 0.03], [120.0, 0.06]]]
-    )
+    paths = torch.tensor([[[100.0, 0.04], [110.0, 0.05], [105.0, 0.03], [120.0, 0.06]]])
     features = hedger._features(paths, 0, torch.tensor([0.25]))
     expected = torch.tensor([[0.0, 1.0, 0.2, 0.25]])
     assert torch.allclose(features, expected)
     expected_delta = torch.tensor([0.5398278])
     assert torch.allclose(
-        hedger._ntbn_no_cost_delta(features),
+        hedger._local_bs_delta(paths, 0),
         expected_delta,
         atol=1e-6,
     )
@@ -246,6 +236,45 @@ def test_ntbn_inverted_bounds_use_midpoint_like_authors_code() -> None:
         policy_type._clamp_to_band(previous, lower, upper),
         midpoint,
     )
+
+
+def test_bs_deviation_features_and_zero_initial_residual() -> None:
+    hedger = DeepHedger(
+        MARKET,
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            architecture="mlp",
+            feature_mode="local_bs_state",
+            prediction_target="local_bs_deviation",
+            output_initialization="zero_last",
+            hidden_dims=(64, 32),
+        ),
+        device="cpu",
+    )
+    paths = torch.as_tensor(sample_heston_numpy(MARKET, 16, seed=17))
+    previous = torch.full((16,), 0.25)
+    features = hedger._features(paths, 0, previous)
+    expected = torch.stack(
+        (
+            torch.log(paths[:, 0, 0] / MARKET["K"]),
+            torch.full((16,), MARKET["T"]),
+            torch.sqrt(paths[:, 0, 1]),
+            previous,
+        ),
+        dim=1,
+    )
+    assert torch.allclose(features, expected)
+
+    final = hedger.policy.mlp[-1]
+    assert isinstance(final, nn.Linear)
+    assert torch.count_nonzero(final.weight) == 0
+    assert torch.count_nonzero(final.bias) == 0
+    actions = hedger.predict_actions(paths)
+    expected_actions = torch.stack(
+        [hedger._local_bs_delta(paths, step) for step in range(MARKET["N"])],
+        dim=1,
+    )
+    assert torch.allclose(actions, expected_actions)
 
 
 def test_snapshot_restore_republishes_completed_prefix(

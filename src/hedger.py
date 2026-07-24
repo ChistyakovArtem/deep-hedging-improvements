@@ -18,10 +18,12 @@ from src.market import TorchHestonStream
 class DeepHedgerConfig:
     architecture: str = "mlp"
     feature_mode: str = "normalized"
+    prediction_target: str = "direct"
     time_parameterization: str = "shared"
     hidden_dims: tuple[int, ...] = (64, 32)
     activation: str = "leaky_relu"
     batch_norm: bool = False
+    output_initialization: str = "default"
     n_frequencies: int = 16
     paf_sigma: float = 1.0
     periodic_include_linear: bool = False
@@ -41,41 +43,39 @@ class DeepHedgerConfig:
         feature_modes = {
             "normalized",
             "ntbn_paper",
+            "local_bs_state",
             "legacy_raw",
             "paper_log_state_with_time",
             "paper_log_state",
         }
         if self.feature_mode not in feature_modes:
             raise ValueError(
-                f"Unknown feature mode {self.feature_mode!r}; "
-                f"expected {sorted(feature_modes)}."
+                f"Unknown feature mode {self.feature_mode!r}; expected {sorted(feature_modes)}."
             )
         if self.time_parameterization not in {"shared", "per_step"}:
             raise ValueError("time_parameterization must be 'shared' or 'per_step'.")
+        if self.prediction_target not in {"direct", "local_bs_deviation"}:
+            raise ValueError("prediction_target must be 'direct' or 'local_bs_deviation'.")
         if self.activation not in {"leaky_relu", "relu"}:
             raise ValueError("activation must be 'leaky_relu' or 'relu'.")
+        if self.output_initialization not in {"default", "zero_last"}:
+            raise ValueError("output_initialization must be 'default' or 'zero_last'.")
         if self.architecture in {"paf_shared", "paf_featurewise"} and (
-            self.feature_mode != "normalized"
-            or self.time_parameterization != "shared"
+            self.feature_mode != "normalized" or self.time_parameterization != "shared"
         ):
             raise ValueError(
                 "Periodic architectures currently require normalized features "
                 "and shared time parameterization."
             )
         if self.architecture == "ntbn" and (
-            self.feature_mode != "ntbn_paper"
-            or self.time_parameterization != "shared"
+            self.feature_mode != "ntbn_paper" or self.time_parameterization != "shared"
         ):
             raise ValueError(
-                "NTBN requires ntbn_paper features and shared time "
-                "parameterization."
+                "NTBN requires ntbn_paper features and shared time parameterization."
             )
-        if self.feature_mode == "ntbn_paper" and self.architecture != "ntbn":
-            raise ValueError("ntbn_paper features are reserved for NTBN.")
-        if (
-            self.time_parameterization == "per_step"
-            and self.feature_mode != "paper_log_state"
-        ):
+        if self.architecture == "ntbn" and self.prediction_target != "direct":
+            raise ValueError("NTBN defines its own band output and requires direct target.")
+        if self.time_parameterization == "per_step" and self.feature_mode != "paper_log_state":
             raise ValueError(
                 "Per-step networks require paper_log_state, where time is "
                 "implicit in the selected network."
@@ -102,9 +102,7 @@ class _PeriodicEmbedding(nn.Module):
         self.input_dim = input_dim
         self.n_frequencies = n_frequencies
         self.include_linear = include_linear
-        self.frequencies = nn.Parameter(
-            sigma * torch.randn(input_dim, n_frequencies)
-        )
+        self.frequencies = nn.Parameter(sigma * torch.randn(input_dim, n_frequencies))
 
     @property
     def output_dim(self) -> int:
@@ -118,12 +116,7 @@ class _PeriodicEmbedding(nn.Module):
             phase = 2.0 * math.pi * (values @ self.frequencies)
             parts = [torch.sin(phase), torch.cos(phase)]
         else:
-            phase = (
-                2.0
-                * math.pi
-                * values.unsqueeze(-1)
-                * self.frequencies.unsqueeze(0)
-            )
+            phase = 2.0 * math.pi * values.unsqueeze(-1) * self.frequencies.unsqueeze(0)
             parts = [torch.sin(phase), torch.cos(phase)]
         if self.include_linear:
             parts.insert(0, phase)
@@ -163,7 +156,11 @@ class _Policy(nn.Module):
                 layers.append(nn.LeakyReLU(0.01))
             previous_dim = hidden_dim
         output_dim = 2 if config.architecture == "ntbn" else 1
-        layers.append(nn.Linear(previous_dim, output_dim))
+        output_layer = nn.Linear(previous_dim, output_dim)
+        if config.output_initialization == "zero_last":
+            nn.init.zeros_(output_layer.weight)
+            nn.init.zeros_(output_layer.bias)
+        layers.append(output_layer)
         self.mlp = nn.Sequential(*layers)
 
     @staticmethod
@@ -191,9 +188,7 @@ class _Policy(nn.Module):
         if self.embedding is None:
             representation = values
         else:
-            representation = torch.cat(
-                (self.embedding(values[:, :3]), values[:, 3:4]), dim=1
-            )
+            representation = torch.cat((self.embedding(values[:, :3]), values[:, 3:4]), dim=1)
         return self.mlp(representation).squeeze(1)
 
 
@@ -255,7 +250,7 @@ class DeepHedger:
                 time_feature,
                 previous_hedge,
             )
-        elif self.config.feature_mode == "ntbn_paper":
+        elif self.config.feature_mode in {"ntbn_paper", "local_bs_state"}:
             expiry = torch.full_like(
                 spot,
                 float(self.market["T"]) * time_ratio,
@@ -286,19 +281,23 @@ class DeepHedger:
             return self.policy[step]
         return self.policy
 
-    def _ntbn_no_cost_delta(self, features: torch.Tensor) -> torch.Tensor:
-        """Local Black--Scholes center used by the NTBN Heston adaptation."""
-        log_moneyness = features[:, 0]
-        expiry = features[:, 1]
-        volatility = features[:, 2]
+    def _local_bs_delta(
+        self,
+        paths: torch.Tensor,
+        step: int,
+    ) -> torch.Tensor:
+        """Local Black--Scholes delta from the current Heston state."""
+        spot = paths[:, step, 0]
+        variance = paths[:, step, 1]
+        log_moneyness = torch.log(spot / float(self.market["K"]))
+        expiry = torch.full_like(
+            spot,
+            float(self.market["T"]) * (1.0 - step / int(self.market["N"])),
+        )
+        volatility = torch.sqrt(variance.clamp_min(torch.finfo(variance.dtype).tiny))
         denominator = volatility * torch.sqrt(expiry)
         d1 = (
-            log_moneyness
-            + (
-                float(self.market["r"])
-                + 0.5 * volatility.square()
-            )
-            * expiry
+            log_moneyness + (float(self.market["r"]) + 0.5 * volatility.square()) * expiry
         ) / denominator
         return 0.5 * (1.0 + torch.erf(d1 / math.sqrt(2.0)))
 
@@ -311,27 +310,30 @@ class DeepHedger:
         for step in range(int(self.market["N"])):
             features = self._features(paths, step, previous)
             policy = self._policy_for_step(step)
+            local_bs_delta = self._local_bs_delta(paths, step)
             if self.config.architecture == "ntbn":
                 action = policy(
                     features,
-                    no_cost_delta=self._ntbn_no_cost_delta(features),
+                    no_cost_delta=local_bs_delta,
                 )
+            elif self.config.prediction_target == "local_bs_deviation":
+                action = local_bs_delta + policy(features)
             else:
                 action = policy(features)
             actions.append(action)
             previous = action
         return torch.stack(actions, dim=1)
 
-    def evaluate_tensor(self, paths: torch.Tensor) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
+    def evaluate_tensor(
+        self, paths: torch.Tensor
+    ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
         actions = self.predict_actions(paths)
         outputs = backtest_actions(paths.to(self.device), actions, self.market)
         return actions, outputs
 
     def fit(self, public_paths: torch.Tensor) -> list[dict[str, float | int]]:
         public_paths = public_paths.to(self.device)
-        optimizer = torch.optim.Adam(
-            self.policy.parameters(), lr=self.config.learning_rate
-        )
+        optimizer = torch.optim.Adam(self.policy.parameters(), lr=self.config.learning_rate)
         stream = TorchHestonStream(
             self.market,
             seed=10_000_000 + self.config.seed,

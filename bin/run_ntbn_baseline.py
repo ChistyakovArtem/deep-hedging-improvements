@@ -22,10 +22,12 @@ def _hedger_config(config: dict) -> DeepHedgerConfig:
     return DeepHedgerConfig(
         architecture=str(model["architecture"]),
         feature_mode=str(model["feature_mode"]),
+        prediction_target=str(model.get("prediction_target", "direct")),
         time_parameterization=str(model["time_parameterization"]),
         hidden_dims=tuple(int(x) for x in model["hidden_dims"]),
         activation=str(model["activation"]),
         batch_norm=bool(model["batch_norm"]),
+        output_initialization=str(model.get("output_initialization", "default")),
         n_frequencies=int(model["n_frequencies"]),
         paf_sigma=float(model["paf_sigma"]),
         periodic_include_linear=bool(model["periodic_include_linear"]),

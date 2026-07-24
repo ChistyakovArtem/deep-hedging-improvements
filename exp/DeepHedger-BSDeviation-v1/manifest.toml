@@ -1,0 +1,28 @@
+experiment = "DeepHedger-BSDeviation-v1"
+n_markets = 2
+n_seeds_per_market = 4
+n_configs = 8
+public_seed = 20260724
+public_paths = 100000
+private_access = false
+primary_comparator = "DeepHedger-NTBN-v1 paired seeds 0-3"
+config_directories = [
+    "exp/DeepHedger-BSDeviation-v1/heston-xi01/public/seed-000",
+    "exp/DeepHedger-BSDeviation-v1/heston-xi01/public/seed-001",
+    "exp/DeepHedger-BSDeviation-v1/heston-xi01/public/seed-002",
+    "exp/DeepHedger-BSDeviation-v1/heston-xi01/public/seed-003",
+    "exp/DeepHedger-BSDeviation-v1/heston-xi03/public/seed-000",
+    "exp/DeepHedger-BSDeviation-v1/heston-xi03/public/seed-001",
+    "exp/DeepHedger-BSDeviation-v1/heston-xi03/public/seed-002",
+    "exp/DeepHedger-BSDeviation-v1/heston-xi03/public/seed-003",
+]
+
+[common_protocol]
+market_differences = "xi only"
+accounting = "discounted"
+objective = "entropic_risk_gamma_1"
+transaction_cost = 0.001
+n_steps = 30
+no_paf = true
+no_running_pnl = true
+stock_only = true

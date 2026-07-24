@@ -28,10 +28,12 @@ def _hedger_config(config: dict) -> DeepHedgerConfig:
     return DeepHedgerConfig(
         architecture=str(model["architecture"]),
         feature_mode=str(model.get("feature_mode", "normalized")),
+        prediction_target=str(model.get("prediction_target", "direct")),
         time_parameterization=str(model.get("time_parameterization", "shared")),
         hidden_dims=tuple(int(x) for x in model["hidden_dims"]),
         activation=str(model.get("activation", "leaky_relu")),
         batch_norm=bool(model.get("batch_norm", False)),
+        output_initialization=str(model.get("output_initialization", "default")),
         n_frequencies=int(model["n_frequencies"]),
         paf_sigma=float(model["paf_sigma"]),
         periodic_include_linear=bool(model["periodic_include_linear"]),
@@ -51,12 +53,8 @@ def run(
 ) -> Path:
     config_dir = config_dir.resolve()
     config = load_toml(config_dir / "config.toml")
-    actual_project_hash = hashlib.sha256(
-        DEFAULT_PROJECT_CONFIG.read_bytes()
-    ).hexdigest()
-    expected_project_hash = str(
-        config["experiment"]["project_config_sha256"]
-    )
+    actual_project_hash = hashlib.sha256(DEFAULT_PROJECT_CONFIG.read_bytes()).hexdigest()
+    expected_project_hash = str(config["experiment"]["project_config_sha256"])
     if expected_project_hash != actual_project_hash:
         raise RuntimeError(
             f"Stale project config in {config_dir}: "

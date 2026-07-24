@@ -1,0 +1,90 @@
+seed = 3
+
+[experiment]
+name = "DeepHedger-BSDeviation-v1"
+purpose = "merge NTBN state coordinates and a local-BS residual target into the standard shared MLP"
+market = "heston-xi03"
+split = "public"
+model = "DeepHedger"
+
+[market]
+model = "heston"
+scheme = "full_truncation_euler"
+S0 = 100.0
+K = 100.0
+v0 = 0.04
+r = 0.01
+kappa = 2.0
+theta = 0.04
+xi = 0.3
+rho = -0.7
+T = 1.0
+N = 30
+transaction_cost = 0.001
+accounting = "discounted"
+payoff = "european_call"
+
+[objective]
+name = "entropic_risk"
+risk_aversion = 1.0
+pnl_scale = 1.0
+score_direction = "higher"
+score_definition = "score = -entropic_risk"
+
+[leaderboard]
+name = "bs-deviation-xi03-public"
+n_paths = 100000
+seed = 20260724
+paths_sha256 = "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b"
+allowed_uses = [
+    "checkpoint_selection",
+    "diagnostic_reporting",
+]
+
+[model]
+architecture = "mlp"
+feature_mode = "local_bs_state"
+prediction_target = "local_bs_deviation"
+feature_names = [
+    "log_moneyness",
+    "time_to_expiry",
+    "instantaneous_volatility",
+    "previous_hedge",
+]
+time_parameterization = "shared"
+hidden_dims = [
+    64,
+    32,
+]
+activation = "leaky_relu"
+batch_norm = false
+output_initialization = "zero_last"
+n_frequencies = 16
+paf_sigma = 1.0
+periodic_include_linear = false
+action_rule = "local_black_scholes_delta_plus_network_residual"
+
+[training]
+optimizer = "adam"
+learning_rate = 0.001
+n_epochs = 10000
+paths_per_epoch = 3000
+validation_interval = 200
+
+[evaluation]
+leaderboards = [
+    "public",
+]
+save_predictions = true
+private_access = false
+
+[comparison]
+primary = "DeepHedger-NTBN-v1"
+paired_training_seed = 3
+same_public_paths = true
+ntbn_difference = "the previous hedge is an MLP input and the network predicts an unconstrained residual instead of band widths"
+
+[provenance]
+design = "standard ICAIF shared MLP with the paper-ordered NTBN market state and the coursework local-BS deviation head"
+zero_initialization = "the final layer is zeroed, so the initial policy is exactly the local Black-Scholes delta"
+fixed_components = "same objective, accounting, optimizer, update budget, public paths, and training RNG convention as NTBN"

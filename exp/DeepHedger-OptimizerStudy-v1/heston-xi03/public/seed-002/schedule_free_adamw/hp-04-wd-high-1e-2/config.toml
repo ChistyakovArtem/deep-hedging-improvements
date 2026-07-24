@@ -1,0 +1,125 @@
+seed = 2
+
+[experiment]
+name = "DeepHedger-OptimizerStudy-v1"
+purpose = "guided optimizer search for the selected no-PnL mathematical-residual DeepHedger"
+market = "heston-xi03"
+split = "public"
+variant = "schedule_free_adamw/hp-04-wd-high-1e-2"
+article_label = "schedule_free_adamw: wd-high-1e-2"
+model = "DeepHedger"
+optimizer = "schedule_free_adamw"
+hp_id = 4
+hp_label = "wd-high-1e-2"
+
+[market]
+model = "heston"
+scheme = "full_truncation_euler"
+S0 = 100.0
+K = 100.0
+v0 = 0.04
+r = 0.01
+kappa = 2.0
+theta = 0.04
+xi = 0.3
+rho = -0.7
+T = 1.0
+N = 30
+transaction_cost = 0.001
+accounting = "discounted"
+payoff = "european_call"
+
+[objective]
+name = "entropic_risk"
+risk_aversion = 1.0
+pnl_scale = 1.0
+score_direction = "higher"
+score_definition = "score = -entropic_risk"
+
+[leaderboard]
+name = "recipe-matrix-xi03-public"
+n_paths = 100000
+seed = 20260724
+paths_sha256 = "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b"
+allowed_uses = [
+    "checkpoint_selection",
+    "diagnostic_reporting",
+]
+
+[model]
+architecture = "mlp"
+feature_mode = "normalized"
+feature_names = [
+    "log_moneyness",
+    "variance_ratio",
+    "time_ratio",
+    "previous_hedge",
+]
+time_parameterization = "shared"
+hidden_dims = [
+    64,
+    32,
+]
+activation = "leaky_relu"
+batch_norm = false
+action_head = "delta_residual"
+prediction_target = "direct"
+output_initialization = "zero_last"
+reference_hedge = "heston_mv_no_trade"
+reference_used = true
+reference_leland_scale = 0.0
+reference_no_trade_width = 0.04
+reference_grid_moneyness_points = 513
+reference_grid_volatility_points = 257
+reference_grid_log_moneyness_min = -1.5
+reference_grid_log_moneyness_max = 1.5
+reference_grid_volatility_min = 0.0001
+reference_grid_volatility_max = 1.0
+reference_cf_n_quad = 256
+reference_cf_phi_min = 1e-08
+reference_cf_phi_max = 200.0
+reference_cf_batch_size = 8192
+n_frequencies = 16
+paf_sigma = 1.0
+periodic_include_linear = false
+
+[training]
+optimizer = "schedule_free_adamw"
+learning_rate = 0.0025
+n_epochs = 10000
+paths_per_epoch = 3000
+validation_interval = 200
+weight_decay = 0.01
+ema_decay = 0.99
+muon_learning_rate = 0.02
+muon_momentum = 0.95
+
+[reference_selection]
+selector = "best_overall"
+used = true
+selection_metric = "lowest entropic risk on the frozen public mathematical-delta board"
+kind = "heston_mv_no_trade"
+leland_scale = 0.0
+no_trade_width = 0.04
+public_entropic_risk = 11.629454251545086
+
+[evaluation]
+leaderboards = [
+    "public",
+]
+save_predictions = true
+private_access = false
+
+[provenance]
+baseline_experiment = "DeepHedger-RecipeMatrix-v1"
+baseline_variant = "v04-residual-best-overall"
+baseline_config = "exp/DeepHedger-RecipeMatrix-v1/heston-xi03/public/seed-002/v04-residual-best-overall/config.toml"
+one_factor_change = "optimizer and optimizer hyperparameters"
+guided_search = "anchor followed by one-coordinate lower/higher probes"
+optimizer_paper = "https://arxiv.org/abs/2604.15297"
+optimizer_paper_code_commit = "c34e33152db9eea8ed4b2d742b9bef5628d71fb5"
+muon_parameter_policy = "Muon on hidden Linear weights; auxiliary AdamW on output head and vector parameters"
+weight_decay_policy = "decoupled for AdamW-family methods; biases and one-dimensional parameters exempt"
+no_paf = true
+no_running_pnl = true
+private_access = false

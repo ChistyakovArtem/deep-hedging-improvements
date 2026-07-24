@@ -12,6 +12,7 @@ from torch.nn import functional as F
 
 from src.evaluation import backtest_actions, entropic_risk
 from src.market import TorchHestonStream
+from src.optimizers import make_optimizer_controller
 from src.reference_hedges import ReferenceHedge, local_black_scholes_delta
 
 
@@ -46,6 +47,10 @@ class DeepHedgerConfig:
     running_pnl_scale: float = 1.0
     learning_rate: float = 1e-3
     optimizer: str = "adam"
+    weight_decay: float = 0.0
+    ema_decay: float = 0.99
+    muon_learning_rate: float = 0.02
+    muon_momentum: float = 0.95
     n_epochs: int = 10_000
     paths_per_epoch: int = 3_000
     validation_interval: int = 200
@@ -140,8 +145,25 @@ class DeepHedgerConfig:
                 "Per-step networks require paper_log_state, where time is "
                 "implicit in the selected network."
             )
-        if self.optimizer != "adam":
-            raise ValueError("Stage 1 intentionally supports only Adam.")
+        optimizers = {
+            "adam",
+            "adamw",
+            "adamw_ema",
+            "schedule_free_adamw",
+            "muon",
+        }
+        if self.optimizer not in optimizers:
+            raise ValueError(
+                f"Unknown optimizer {self.optimizer!r}; expected {sorted(optimizers)}."
+            )
+        if self.learning_rate <= 0.0 or self.muon_learning_rate <= 0.0:
+            raise ValueError("Optimizer learning rates must be positive.")
+        if self.weight_decay < 0.0:
+            raise ValueError("weight_decay must be non-negative.")
+        if not 0.0 < self.ema_decay < 1.0:
+            raise ValueError("ema_decay must be strictly between zero and one.")
+        if not 0.0 <= self.muon_momentum < 1.0:
+            raise ValueError("muon_momentum must be in [0, 1).")
         if self.n_epochs <= 0 or self.paths_per_epoch <= 0:
             raise ValueError("Training budgets must be positive.")
         if self.validation_interval <= 0:
@@ -471,7 +493,17 @@ class DeepHedger:
 
     def fit(self, public_paths: torch.Tensor) -> list[dict[str, float | int]]:
         public_paths = public_paths.to(self.device)
-        optimizer = torch.optim.Adam(self.policy.parameters(), lr=self.config.learning_rate)
+        online_policy = self.policy
+        optimizer = make_optimizer_controller(
+            online_policy,
+            family=self.config.optimizer,
+            learning_rate=self.config.learning_rate,
+            weight_decay=self.config.weight_decay,
+            ema_decay=self.config.ema_decay,
+            muon_learning_rate=self.config.muon_learning_rate,
+            muon_momentum=self.config.muon_momentum,
+        )
+        optimizer.begin_training()
         stream = TorchHestonStream(
             self.market,
             seed=10_000_000 + self.config.seed,
@@ -484,7 +516,7 @@ class DeepHedger:
         for epoch in range(1, self.config.n_epochs + 1):
             self.policy.train()
             paths = stream.sample(self.config.paths_per_epoch)
-            optimizer.zero_grad(set_to_none=True)
+            optimizer.zero_grad()
             _, outputs = self.evaluate_tensor(paths)
             pnl = outputs["pnl"] / float(self.objective.get("pnl_scale", 1.0))
             loss = entropic_risk(
@@ -495,18 +527,29 @@ class DeepHedger:
             optimizer.step()
 
             if epoch % self.config.validation_interval == 0 or epoch == 1:
-                self.policy.eval()
-                with torch.no_grad():
-                    _, validation_outputs = self.evaluate_tensor(public_paths)
-                    validation_pnl = validation_outputs["pnl"] / float(
-                        self.objective.get("pnl_scale", 1.0)
-                    )
-                    validation_risk = float(
-                        entropic_risk(
-                            validation_pnl,
-                            risk_aversion=float(self.objective["risk_aversion"]),
-                        ).item()
-                    )
+                with optimizer.validation_policy() as validation_policy:
+                    try:
+                        self.policy = validation_policy
+                        self.policy.eval()
+                        with torch.no_grad():
+                            _, validation_outputs = self.evaluate_tensor(public_paths)
+                            validation_pnl = validation_outputs["pnl"] / float(
+                                self.objective.get("pnl_scale", 1.0)
+                            )
+                            validation_risk = float(
+                                entropic_risk(
+                                    validation_pnl,
+                                    risk_aversion=float(
+                                        self.objective["risk_aversion"]
+                                    ),
+                                ).item()
+                            )
+                        validation_state = {
+                            key: value.detach().cpu().clone()
+                            for key, value in self.policy.state_dict().items()
+                        }
+                    finally:
+                        self.policy = online_policy
                 row: dict[str, float | int] = {
                     "epoch": epoch,
                     "train_entropic_risk": float(loss.detach().item()),
@@ -517,13 +560,11 @@ class DeepHedger:
                 if validation_risk < best_risk:
                     best_risk = validation_risk
                     self.best_epoch = epoch
-                    best_state = {
-                        key: value.detach().cpu().clone()
-                        for key, value in self.policy.state_dict().items()
-                    }
+                    best_state = validation_state
 
         if best_state is None:
             raise RuntimeError("Training produced no validation checkpoint.")
+        self.policy = online_policy
         self.policy.load_state_dict(best_state)
         self.policy.to(self.device)
         self.best_public_risk = best_risk

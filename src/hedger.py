@@ -8,6 +8,7 @@ from typing import Any
 
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 from src.evaluation import backtest_actions, entropic_risk
 from src.market import TorchHestonStream
@@ -32,13 +33,14 @@ class DeepHedgerConfig:
     seed: int = 0
 
     def validate(self) -> None:
-        allowed = {"mlp", "paf_shared", "paf_featurewise"}
+        allowed = {"mlp", "ntbn", "paf_shared", "paf_featurewise"}
         if self.architecture not in allowed:
             raise ValueError(
                 f"Unknown architecture {self.architecture!r}; expected {sorted(allowed)}."
             )
         feature_modes = {
             "normalized",
+            "ntbn_paper",
             "legacy_raw",
             "paper_log_state_with_time",
             "paper_log_state",
@@ -52,7 +54,7 @@ class DeepHedgerConfig:
             raise ValueError("time_parameterization must be 'shared' or 'per_step'.")
         if self.activation not in {"leaky_relu", "relu"}:
             raise ValueError("activation must be 'leaky_relu' or 'relu'.")
-        if self.architecture != "mlp" and (
+        if self.architecture in {"paf_shared", "paf_featurewise"} and (
             self.feature_mode != "normalized"
             or self.time_parameterization != "shared"
         ):
@@ -60,6 +62,16 @@ class DeepHedgerConfig:
                 "Periodic architectures currently require normalized features "
                 "and shared time parameterization."
             )
+        if self.architecture == "ntbn" and (
+            self.feature_mode != "ntbn_paper"
+            or self.time_parameterization != "shared"
+        ):
+            raise ValueError(
+                "NTBN requires ntbn_paper features and shared time "
+                "parameterization."
+            )
+        if self.feature_mode == "ntbn_paper" and self.architecture != "ntbn":
+            raise ValueError("ntbn_paper features are reserved for NTBN.")
         if (
             self.time_parameterization == "per_step"
             and self.feature_mode != "paper_log_state"
@@ -122,8 +134,13 @@ class _PeriodicEmbedding(nn.Module):
 class _Policy(nn.Module):
     def __init__(self, config: DeepHedgerConfig, input_dim: int):
         super().__init__()
-        if config.architecture == "mlp":
+        self.architecture = config.architecture
+        if config.architecture in {"mlp", "ntbn"}:
             self.embedding = None
+            if config.architecture == "ntbn":
+                # The previous hedge is used by the band clamp, not as an MLP
+                # input, matching Imaki et al.'s released implementation.
+                input_dim -= 1
         else:
             self.embedding = _PeriodicEmbedding(
                 kind=config.architecture,
@@ -145,10 +162,32 @@ class _Policy(nn.Module):
             else:
                 layers.append(nn.LeakyReLU(0.01))
             previous_dim = hidden_dim
-        layers.append(nn.Linear(previous_dim, 1))
+        output_dim = 2 if config.architecture == "ntbn" else 1
+        layers.append(nn.Linear(previous_dim, output_dim))
         self.mlp = nn.Sequential(*layers)
 
-    def forward(self, values: torch.Tensor) -> torch.Tensor:
+    @staticmethod
+    def _clamp_to_band(
+        previous: torch.Tensor,
+        lower: torch.Tensor,
+        upper: torch.Tensor,
+    ) -> torch.Tensor:
+        """Paper-compatible clamp, including its inverted-bound fallback."""
+        clamped = torch.minimum(torch.maximum(previous, lower), upper)
+        return torch.where(lower < upper, clamped, (lower + upper) / 2.0)
+
+    def forward(
+        self,
+        values: torch.Tensor,
+        no_cost_delta: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        if self.architecture == "ntbn":
+            if no_cost_delta is None:
+                raise ValueError("NTBN requires a no-cost delta center.")
+            band_width = self.mlp(values[:, :-1])
+            lower = no_cost_delta - F.leaky_relu(band_width[:, 0])
+            upper = no_cost_delta + F.leaky_relu(band_width[:, 1])
+            return self._clamp_to_band(values[:, -1], lower, upper)
         if self.embedding is None:
             representation = values
         else:
@@ -216,6 +255,17 @@ class DeepHedger:
                 time_feature,
                 previous_hedge,
             )
+        elif self.config.feature_mode == "ntbn_paper":
+            expiry = torch.full_like(
+                spot,
+                float(self.market["T"]) * time_ratio,
+            )
+            values = (
+                torch.log(spot / float(self.market["K"])),
+                expiry,
+                torch.sqrt(variance.clamp_min(torch.finfo(variance.dtype).tiny)),
+                previous_hedge,
+            )
         elif self.config.feature_mode == "paper_log_state_with_time":
             values = (torch.log(spot), variance, time_feature, previous_hedge)
         elif self.config.feature_mode == "paper_log_state":
@@ -225,7 +275,7 @@ class DeepHedger:
         return torch.stack(values, dim=1)
 
     def _input_dim(self) -> int:
-        if self.config.architecture != "mlp":
+        if self.config.architecture in {"paf_shared", "paf_featurewise"}:
             return 4
         if self.config.feature_mode == "paper_log_state":
             return 3
@@ -236,6 +286,22 @@ class DeepHedger:
             return self.policy[step]
         return self.policy
 
+    def _ntbn_no_cost_delta(self, features: torch.Tensor) -> torch.Tensor:
+        """Local Black--Scholes center used by the NTBN Heston adaptation."""
+        log_moneyness = features[:, 0]
+        expiry = features[:, 1]
+        volatility = features[:, 2]
+        denominator = volatility * torch.sqrt(expiry)
+        d1 = (
+            log_moneyness
+            + (
+                float(self.market["r"])
+                + 0.5 * volatility.square()
+            )
+            * expiry
+        ) / denominator
+        return 0.5 * (1.0 + torch.erf(d1 / math.sqrt(2.0)))
+
     def predict_actions(self, paths: torch.Tensor) -> torch.Tensor:
         if paths.device != self.device:
             paths = paths.to(self.device)
@@ -243,9 +309,15 @@ class DeepHedger:
         previous = torch.zeros(n_paths, device=self.device, dtype=paths.dtype)
         actions = []
         for step in range(int(self.market["N"])):
-            action = self._policy_for_step(step)(
-                self._features(paths, step, previous)
-            )
+            features = self._features(paths, step, previous)
+            policy = self._policy_for_step(step)
+            if self.config.architecture == "ntbn":
+                action = policy(
+                    features,
+                    no_cost_delta=self._ntbn_no_cost_delta(features),
+                )
+            else:
+                action = policy(features)
             actions.append(action)
             previous = action
         return torch.stack(actions, dim=1)

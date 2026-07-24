@@ -1,0 +1,91 @@
+seed = 6
+
+[experiment]
+name = "DeepHedger-NTBN-v1"
+purpose = "same-objective No-Transaction Band Network baseline"
+market = "heston-xi01"
+split = "public"
+model = "DeepHedger"
+
+[market]
+model = "heston"
+scheme = "full_truncation_euler"
+S0 = 100.0
+K = 100.0
+v0 = 0.04
+r = 0.01
+kappa = 2.0
+theta = 0.04
+xi = 0.1
+rho = -0.7
+T = 1.0
+N = 30
+transaction_cost = 0.001
+accounting = "discounted"
+payoff = "european_call"
+
+[objective]
+name = "entropic_risk"
+risk_aversion = 1.0
+pnl_scale = 1.0
+score_direction = "higher"
+score_definition = "score = -entropic_risk"
+
+[leaderboard]
+name = "ntbn-xi01-public"
+n_paths = 100000
+seed = 20260724
+paths_sha256 = "70e62bfe2e48f03a8a07ec6c62c3d1fbae51c677d8ed2b709c66493e2c131a89"
+allowed_uses = [
+    "checkpoint_selection",
+    "diagnostic_reporting",
+]
+
+[model]
+architecture = "ntbn"
+feature_mode = "ntbn_paper"
+feature_names = [
+    "log_moneyness",
+    "time_to_expiry",
+    "instantaneous_volatility",
+    "previous_hedge_for_clamp_only",
+]
+time_parameterization = "shared"
+hidden_dims = [
+    32,
+    32,
+    32,
+    32,
+]
+activation = "relu"
+batch_norm = false
+initialization = "torch-default"
+n_frequencies = 16
+paf_sigma = 1.0
+periodic_include_linear = false
+band_center = "local_black_scholes_delta"
+band_width_transform = "leaky_relu_0.01"
+inverted_band_rule = "midpoint"
+
+[training]
+optimizer = "adam"
+learning_rate = 0.001
+n_epochs = 10000
+paths_per_epoch = 3000
+validation_interval = 200
+
+[evaluation]
+leaderboards = [
+    "public",
+]
+save_predictions = true
+private_access = false
+
+[provenance]
+paper = "Imaki et al., No-Transaction Band Network: A Neural Network Architecture for Efficient Deep Hedging"
+paper_url = "https://arxiv.org/abs/2103.01775"
+source_repository = "https://github.com/pfnet-research/NoTransactionBandNetwork"
+source_commit = "c061a1a673a82d63278ba6a3a4bf869a615a6c48"
+faithful_components = "three network inputs in paper order; four hidden ReLU layers of width 32; two asymmetric widths; leaky-ReLU width transform; previous-position clamp; midpoint fallback for inverted bands"
+heston_adaptation = "paper GBM volatility is replaced by current sqrt(variance); the local Black-Scholes center includes configured r and therefore recovers the authors' formula when r=0"
+common_protocol_change = "10000 updates x 3000 fresh paths for comparison with this project; authors' notebook used 200 x 50000"

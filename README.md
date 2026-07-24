@@ -20,10 +20,14 @@ hedger.fit(public_paths)
 actions = hedger.predict_actions(test_paths)
 ```
 
-`architecture` is a hyperparameter of the same class: `mlp`, `paf_shared`,
-or `paf_featurewise`. Stage 1 intentionally excludes running P&L, deviation
-targets, alternative optimizers, and RL algorithms so that each later
-improvement can be added and measured in the guided-search order.
+`architecture` is a hyperparameter of the same class: `mlp`, `ntbn`,
+`paf_shared`, or `paf_featurewise`. `ntbn` implements the No-Transaction Band
+Network of Imaki et al.: a shared four-layer MLP predicts asymmetric band widths
+around a local Black--Scholes delta and the previous hedge is clamped into that
+band. Its Heston adaptation uses current instantaneous volatility and the
+configured interest rate. Stage 1 intentionally excludes running P&L,
+deviation targets, alternative optimizers, and RL algorithms so that each
+later improvement can be added and measured in the guided-search order.
 
 ## Frozen stage-1 protocol
 

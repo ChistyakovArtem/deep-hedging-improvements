@@ -1,0 +1,37 @@
+experiment = "DeepHedger-NTBN-v1"
+n_markets = 2
+n_seeds = 8
+n_configs = 16
+public_seed = 20260724
+public_paths = 100000
+private_access = false
+source_repository = "https://github.com/pfnet-research/NoTransactionBandNetwork"
+source_commit = "c061a1a673a82d63278ba6a3a4bf869a615a6c48"
+config_directories = [
+    "exp/DeepHedger-NTBN-v1/heston-xi01/public/seed-000",
+    "exp/DeepHedger-NTBN-v1/heston-xi01/public/seed-001",
+    "exp/DeepHedger-NTBN-v1/heston-xi01/public/seed-002",
+    "exp/DeepHedger-NTBN-v1/heston-xi01/public/seed-003",
+    "exp/DeepHedger-NTBN-v1/heston-xi01/public/seed-004",
+    "exp/DeepHedger-NTBN-v1/heston-xi01/public/seed-005",
+    "exp/DeepHedger-NTBN-v1/heston-xi01/public/seed-006",
+    "exp/DeepHedger-NTBN-v1/heston-xi01/public/seed-007",
+    "exp/DeepHedger-NTBN-v1/heston-xi03/public/seed-000",
+    "exp/DeepHedger-NTBN-v1/heston-xi03/public/seed-001",
+    "exp/DeepHedger-NTBN-v1/heston-xi03/public/seed-002",
+    "exp/DeepHedger-NTBN-v1/heston-xi03/public/seed-003",
+    "exp/DeepHedger-NTBN-v1/heston-xi03/public/seed-004",
+    "exp/DeepHedger-NTBN-v1/heston-xi03/public/seed-005",
+    "exp/DeepHedger-NTBN-v1/heston-xi03/public/seed-006",
+    "exp/DeepHedger-NTBN-v1/heston-xi03/public/seed-007",
+]
+
+[common_protocol]
+market_differences = "xi only"
+accounting = "discounted"
+objective = "entropic_risk_gamma_1"
+transaction_cost = 0.001
+n_steps = 30
+no_paf = true
+no_running_pnl = true
+stock_only = true

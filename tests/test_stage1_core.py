@@ -83,8 +83,20 @@ def test_one_class_builds_every_stage1_architecture() -> None:
         paths_per_epoch=8,
         validation_interval=1,
     )
-    for architecture in ("mlp", "paf_shared", "paf_featurewise"):
-        config = replace(base, architecture=architecture)
+    architectures = (
+        ("mlp", "normalized"),
+        ("ntbn", "ntbn_paper"),
+        ("paf_shared", "normalized"),
+        ("paf_featurewise", "normalized"),
+    )
+    for architecture, feature_mode in architectures:
+        config = replace(
+            base,
+            architecture=architecture,
+            feature_mode=feature_mode,
+            hidden_dims=(32, 32, 32, 32) if architecture == "ntbn" else (64, 32),
+            activation="relu" if architecture == "ntbn" else "leaky_relu",
+        )
         hedger = DeepHedger(MARKET, OBJECTIVE, config=config, device="cpu")
         actions, outputs = hedger.evaluate_tensor(paths)
         assert actions.shape == (16, 3)
@@ -152,6 +164,88 @@ def test_paper_style_policy_uses_batch_norm_before_relu() -> None:
         nn.BatchNorm1d,
         nn.ReLU,
     ]
+
+
+def test_ntbn_features_and_local_black_scholes_center() -> None:
+    market = dict(MARKET, r=0.0, T=1.0, N=3)
+    hedger = DeepHedger(
+        market,
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            architecture="ntbn",
+            feature_mode="ntbn_paper",
+            hidden_dims=(32, 32, 32, 32),
+            activation="relu",
+        ),
+        device="cpu",
+    )
+    paths = torch.tensor(
+        [[[100.0, 0.04], [110.0, 0.05], [105.0, 0.03], [120.0, 0.06]]]
+    )
+    features = hedger._features(paths, 0, torch.tensor([0.25]))
+    expected = torch.tensor([[0.0, 1.0, 0.2, 0.25]])
+    assert torch.allclose(features, expected)
+    expected_delta = torch.tensor([0.5398278])
+    assert torch.allclose(
+        hedger._ntbn_no_cost_delta(features),
+        expected_delta,
+        atol=1e-6,
+    )
+
+
+def test_ntbn_policy_keeps_previous_hedge_inside_learned_band() -> None:
+    hedger = DeepHedger(
+        dict(MARKET, r=0.0),
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            architecture="ntbn",
+            feature_mode="ntbn_paper",
+            hidden_dims=(32, 32, 32, 32),
+            activation="relu",
+        ),
+        device="cpu",
+    )
+    policy = hedger.policy
+    assert not isinstance(policy, nn.ModuleList)
+    for parameter in policy.parameters():
+        nn.init.zeros_(parameter)
+    final = policy.mlp[-1]
+    assert isinstance(final, nn.Linear)
+    with torch.no_grad():
+        final.bias.fill_(0.2)
+
+    features = torch.tensor(
+        [
+            [0.0, 1.0, 0.2, 0.50],
+            [0.0, 1.0, 0.2, 0.00],
+            [0.0, 1.0, 0.2, 1.00],
+        ]
+    )
+    center = torch.full((3,), 0.5)
+    action = policy(features, no_cost_delta=center)
+    assert torch.allclose(action, torch.tensor([0.5, 0.3, 0.7]))
+
+
+def test_ntbn_inverted_bounds_use_midpoint_like_authors_code() -> None:
+    previous = torch.tensor([0.0, 1.0])
+    lower = torch.tensor([0.6, 0.7])
+    upper = torch.tensor([0.4, 0.3])
+    midpoint = torch.tensor([0.5, 0.5])
+    policy_type = type(
+        DeepHedger(
+            MARKET,
+            OBJECTIVE,
+            config=DeepHedgerConfig(
+                architecture="ntbn",
+                feature_mode="ntbn_paper",
+            ),
+            device="cpu",
+        ).policy
+    )
+    assert torch.equal(
+        policy_type._clamp_to_band(previous, lower, upper),
+        midpoint,
+    )
 
 
 def test_snapshot_restore_republishes_completed_prefix(

@@ -50,7 +50,12 @@ def publish_experiment(directory: Path, *, snapshot: bool = True) -> None:
 def restore_snapshot() -> dict[str, int]:
     """Restore terminal/running experiment directories from a prior snapshot."""
     snapshot_root = _external_root("SNAPSHOT_PATH")
-    counts = {"restored": 0, "skipped_incompatible": 0}
+    output_root = _external_root("TMP_OUTPUT_PATH")
+    counts = {
+        "restored": 0,
+        "republished_output": 0,
+        "skipped_incompatible": 0,
+    }
     if snapshot_root is None or not snapshot_root.exists():
         return counts
 
@@ -73,6 +78,14 @@ def restore_snapshot() -> dict[str, int]:
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(source, destination, dirs_exist_ok=True)
         counts["restored"] += 1
+        # A resumed Nirvana attempt starts with an empty ordinary output.
+        # Republish the restored prefix so the terminal data endpoint contains
+        # the complete seed queue, not only configs completed after resumption.
+        if output_root is not None:
+            output = output_root / relative
+            output.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(source, output, dirs_exist_ok=True)
+            counts["republished_output"] += 1
     return counts
 
 

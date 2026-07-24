@@ -4,7 +4,22 @@ project_config_sha256 = "c900418fe0b0eefd45502ae5c6087b1dc96825bc5a3eaae27ded0ba
 n_seeds = 8
 configs_per_seed = 11
 n_configs = 88
-private_access = false
+training_commit = "7b52aba69ee0513f525cdd4a27acf594548e6c45"
+nirvana_workflow_id = "f0068707-2efe-4041-8eff-753ad855ca1b"
+nirvana_result = "8/8 success"
+private_access = true
+selected_config_id = 8
+private_evaluated_config_ids = [0, 8]
+nirvana_instance_ids = [
+    "d27a0be4-98c3-424a-90aa-ec51bb0b481b",
+    "c0fd7fb0-3eec-4166-9939-c3c2d360c61b",
+    "a36a9f0d-f451-46cf-b95c-b391cb09021b",
+    "7e94c96a-6aba-4b37-acb1-08719624db1b",
+    "5aecdb0f-971e-49c1-a917-55937763861b",
+    "9b3ca030-3064-4e09-bc34-3296e602611b",
+    "dc1dbe6b-1548-4517-9751-80330e5c511b",
+    "ff7915c1-68a2-446b-b82f-896b2d96721b",
+]
 config_directories = [
     "exp/DeepHedger-Stage1-v1/heston-xi03/split-public/seed-000/cfg-0000",
     "exp/DeepHedger-Stage1-v1/heston-xi03/split-public/seed-000/cfg-0001",

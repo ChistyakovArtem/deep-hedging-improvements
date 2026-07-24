@@ -1,0 +1,84 @@
+{
+  "aggregates": [
+    {
+      "architecture": "mlp",
+      "config_id": 0,
+      "mean_public_entropic_risk": 10.95279945570164,
+      "paf_sigma": 1.0,
+      "std_public_entropic_risk": 0.019090555584114047
+    },
+    {
+      "architecture": "paf_shared",
+      "config_id": 1,
+      "mean_public_entropic_risk": 10.916489178530139,
+      "paf_sigma": 0.1,
+      "std_public_entropic_risk": 0.028209015016262728
+    },
+    {
+      "architecture": "paf_shared",
+      "config_id": 2,
+      "mean_public_entropic_risk": 10.93330101291739,
+      "paf_sigma": 0.3,
+      "std_public_entropic_risk": 0.0384587414461607
+    },
+    {
+      "architecture": "paf_shared",
+      "config_id": 3,
+      "mean_public_entropic_risk": 10.98503660112543,
+      "paf_sigma": 1.0,
+      "std_public_entropic_risk": 0.07021550334449764
+    },
+    {
+      "architecture": "paf_shared",
+      "config_id": 4,
+      "mean_public_entropic_risk": 11.862228583438462,
+      "paf_sigma": 3.0,
+      "std_public_entropic_risk": 0.4928077738886883
+    },
+    {
+      "architecture": "paf_shared",
+      "config_id": 5,
+      "mean_public_entropic_risk": 22.90457330537098,
+      "paf_sigma": 10.0,
+      "std_public_entropic_risk": 11.086589946858462
+    },
+    {
+      "architecture": "paf_featurewise",
+      "config_id": 6,
+      "mean_public_entropic_risk": 10.944981654035027,
+      "paf_sigma": 0.1,
+      "std_public_entropic_risk": 0.022586082151736638
+    },
+    {
+      "architecture": "paf_featurewise",
+      "config_id": 7,
+      "mean_public_entropic_risk": 10.923837976143838,
+      "paf_sigma": 0.3,
+      "std_public_entropic_risk": 0.015181715124638269
+    },
+    {
+      "architecture": "paf_featurewise",
+      "config_id": 8,
+      "mean_public_entropic_risk": 10.89967431073796,
+      "paf_sigma": 1.0,
+      "std_public_entropic_risk": 0.024652118432252148
+    },
+    {
+      "architecture": "paf_featurewise",
+      "config_id": 9,
+      "mean_public_entropic_risk": 10.934354912019288,
+      "paf_sigma": 3.0,
+      "std_public_entropic_risk": 0.0447887049984202
+    },
+    {
+      "architecture": "paf_featurewise",
+      "config_id": 10,
+      "mean_public_entropic_risk": 11.041368441489958,
+      "paf_sigma": 10.0,
+      "std_public_entropic_risk": 0.06990343576073871
+    }
+  ],
+  "selected_config_id": 8,
+  "selection_leaderboard": "public",
+  "vanilla_config_id": 0
+}

@@ -22,4 +22,5 @@ local/
 !**/exp/**/leaderboard-private.json
 !**/exp/**/public-selection.json
 !**/exp/**/run-summary.json
+!**/exp/**/final-summary.json
 !**/exp/stage1-generation-summary.json

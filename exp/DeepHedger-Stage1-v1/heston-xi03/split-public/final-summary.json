@@ -1,0 +1,156 @@
+{
+  "paired_private_best_minus_vanilla": {
+    "best_dh_wins": 1,
+    "mean": 0.19794365765692934,
+    "n_training_seeds": 8,
+    "std": 0.23418882501765081,
+    "values": [
+      0.050514362327884754,
+      0.7142285476604293,
+      -0.01836348523825393,
+      0.03622044404704283,
+      0.30444824820104444,
+      0.23889154495975262,
+      0.13594122144909093,
+      0.12166837784844375
+    ]
+  },
+  "private_aggregates": [
+    {
+      "architecture": "mlp",
+      "config_id": 0,
+      "mean_entropic_risk": 11.11943820146986,
+      "mean_entropic_weight_ess": 30.238456180869207,
+      "mean_fees_mean": 0.17576716443930754,
+      "mean_largest_entropic_weight_share": 0.13761636746168115,
+      "mean_loss_cvar_95": 12.66582849487689,
+      "mean_loss_cvar_99": 14.104564225518859,
+      "mean_pnl_mean": -8.328908945123256,
+      "mean_pnl_std": 2.126351231087542,
+      "mean_turnover_mean": 1.7645455216672272,
+      "mean_worst_loss": 20.635773181915283,
+      "n_training_seeds": 8,
+      "paf_sigma": 1.0,
+      "std_entropic_risk": 0.05770235577006536,
+      "std_entropic_weight_ess": 5.782850093362539,
+      "std_fees_mean": 0.0029023205732700845,
+      "std_largest_entropic_weight_share": 0.02427274433808601,
+      "std_loss_cvar_95": 0.03188891340258194,
+      "std_loss_cvar_99": 0.027480698208529112,
+      "std_pnl_mean": 0.0024359534845213417,
+      "std_pnl_std": 0.026361202929704213,
+      "std_turnover_mean": 0.029721332948548736,
+      "std_worst_loss": 0.1898754320106572
+    },
+    {
+      "architecture": "paf_featurewise",
+      "config_id": 8,
+      "mean_entropic_risk": 11.31738185912679,
+      "mean_entropic_weight_ess": 14.471876147103984,
+      "mean_fees_mean": 0.18404706569546836,
+      "mean_largest_entropic_weight_share": 0.2651290679245274,
+      "mean_loss_cvar_95": 12.6380180527844,
+      "mean_loss_cvar_99": 14.085067450583399,
+      "mean_pnl_mean": -8.33827999064222,
+      "mean_pnl_std": 2.1040479397866196,
+      "mean_turnover_mean": 1.8469513299947233,
+      "mean_worst_loss": 21.427354335784912,
+      "n_training_seeds": 8,
+      "paf_sigma": 1.0,
+      "std_entropic_risk": 0.1989059237126299,
+      "std_entropic_weight_ess": 6.897080171488125,
+      "std_fees_mean": 0.0031516117673680492,
+      "std_largest_entropic_weight_share": 0.12153414529372013,
+      "std_loss_cvar_95": 0.04979551189933756,
+      "std_loss_cvar_99": 0.033465944080091244,
+      "std_pnl_mean": 0.002881138390149136,
+      "std_pnl_std": 0.04228844870243866,
+      "std_turnover_mean": 0.030138182471104922,
+      "std_worst_loss": 0.5884959220059378
+    }
+  ],
+  "selection": {
+    "aggregates": [
+      {
+        "architecture": "mlp",
+        "config_id": 0,
+        "mean_public_entropic_risk": 10.95279945570164,
+        "paf_sigma": 1.0,
+        "std_public_entropic_risk": 0.019090555584114047
+      },
+      {
+        "architecture": "paf_shared",
+        "config_id": 1,
+        "mean_public_entropic_risk": 10.916489178530139,
+        "paf_sigma": 0.1,
+        "std_public_entropic_risk": 0.028209015016262728
+      },
+      {
+        "architecture": "paf_shared",
+        "config_id": 2,
+        "mean_public_entropic_risk": 10.93330101291739,
+        "paf_sigma": 0.3,
+        "std_public_entropic_risk": 0.0384587414461607
+      },
+      {
+        "architecture": "paf_shared",
+        "config_id": 3,
+        "mean_public_entropic_risk": 10.98503660112543,
+        "paf_sigma": 1.0,
+        "std_public_entropic_risk": 0.07021550334449764
+      },
+      {
+        "architecture": "paf_shared",
+        "config_id": 4,
+        "mean_public_entropic_risk": 11.862228583438462,
+        "paf_sigma": 3.0,
+        "std_public_entropic_risk": 0.4928077738886883
+      },
+      {
+        "architecture": "paf_shared",
+        "config_id": 5,
+        "mean_public_entropic_risk": 22.90457330537098,
+        "paf_sigma": 10.0,
+        "std_public_entropic_risk": 11.086589946858462
+      },
+      {
+        "architecture": "paf_featurewise",
+        "config_id": 6,
+        "mean_public_entropic_risk": 10.944981654035027,
+        "paf_sigma": 0.1,
+        "std_public_entropic_risk": 0.022586082151736638
+      },
+      {
+        "architecture": "paf_featurewise",
+        "config_id": 7,
+        "mean_public_entropic_risk": 10.923837976143838,
+        "paf_sigma": 0.3,
+        "std_public_entropic_risk": 0.015181715124638269
+      },
+      {
+        "architecture": "paf_featurewise",
+        "config_id": 8,
+        "mean_public_entropic_risk": 10.89967431073796,
+        "paf_sigma": 1.0,
+        "std_public_entropic_risk": 0.024652118432252148
+      },
+      {
+        "architecture": "paf_featurewise",
+        "config_id": 9,
+        "mean_public_entropic_risk": 10.934354912019288,
+        "paf_sigma": 3.0,
+        "std_public_entropic_risk": 0.0447887049984202
+      },
+      {
+        "architecture": "paf_featurewise",
+        "config_id": 10,
+        "mean_public_entropic_risk": 11.041368441489958,
+        "paf_sigma": 10.0,
+        "std_public_entropic_risk": 0.06990343576073871
+      }
+    ],
+    "selected_config_id": 8,
+    "selection_leaderboard": "public",
+    "vanilla_config_id": 0
+  }
+}

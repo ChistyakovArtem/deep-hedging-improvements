@@ -1,0 +1,21 @@
+{
+  "architecture": "mlp",
+  "config_id": 0,
+  "entropic_risk": 11.137619523327087,
+  "entropic_weight_ess": 21.262628563381394,
+  "fees_mean": 0.1775353468334675,
+  "largest_entropic_weight_share": 0.18347013541260115,
+  "leaderboard": "private",
+  "loss_cvar_95": 12.624818489518649,
+  "loss_cvar_99": 14.061672900463794,
+  "n_paths": 100000,
+  "paf_sigma": 1.0,
+  "paths_sha256": "e5223984376a2491b7e98f709eade321de34976928cf3f8bde287a46f76ac035",
+  "pnl_mean": -8.330339068524838,
+  "pnl_std": 2.1078340361346575,
+  "role": "vanilla_dh",
+  "score": -11.137619523327087,
+  "seed": 5,
+  "turnover_mean": 1.783348456168175,
+  "worst_loss": 20.95484161376953
+}

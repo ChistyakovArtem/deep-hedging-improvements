@@ -16,6 +16,33 @@ from src.hedger import DeepHedger
 from src.market import materialize_leaderboard
 
 
+def aggregate_rows(rows: list[dict], config_id: int) -> dict:
+    selected = [row for row in rows if row["config_id"] == config_id]
+    metrics = (
+        "entropic_risk",
+        "pnl_mean",
+        "pnl_std",
+        "loss_cvar_95",
+        "loss_cvar_99",
+        "fees_mean",
+        "turnover_mean",
+        "entropic_weight_ess",
+        "largest_entropic_weight_share",
+        "worst_loss",
+    )
+    aggregate = {
+        "config_id": config_id,
+        "architecture": selected[0]["architecture"],
+        "paf_sigma": selected[0]["paf_sigma"],
+        "n_training_seeds": len(selected),
+    }
+    for metric in metrics:
+        values = [row[metric] for row in selected]
+        aggregate[f"mean_{metric}"] = float(np.mean(values))
+        aggregate[f"std_{metric}"] = float(np.std(values, ddof=1))
+    return aggregate
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--device", default="cuda")
@@ -79,6 +106,22 @@ def main() -> None:
             scores = scores_from_outputs(
                 outputs, float(project["objective"]["risk_aversion"])
             )
+            scaled_loss = (
+                -float(project["objective"]["risk_aversion"])
+                * outputs["pnl"].detach().double()
+            )
+            weights = torch.exp(scaled_loss - scaled_loss.max())
+            scores.update(
+                {
+                    "entropic_weight_ess": float(
+                        (weights.sum().square() / weights.square().sum()).item()
+                    ),
+                    "largest_entropic_weight_share": float(
+                        (weights.max() / weights.sum()).item()
+                    ),
+                    "worst_loss": float((-outputs["pnl"].min()).item()),
+                }
+            )
             config = load_toml(directory / "config.toml")
             scores.update(
                 {
@@ -99,9 +142,34 @@ def main() -> None:
             )
             rows.append(scores)
     atomic_write_json(LEARNED_ROOT / "leaderboard-private.json", rows)
-    print(json.dumps(selection, indent=2))
+    vanilla_by_seed = {
+        row["seed"]: row for row in rows if row["config_id"] == 0
+    }
+    selected_by_seed = {
+        row["seed"]: row for row in rows if row["config_id"] == selected_id
+    }
+    paired_differences = [
+        selected_by_seed[seed]["entropic_risk"]
+        - vanilla_by_seed[seed]["entropic_risk"]
+        for seed in range(8)
+    ]
+    final_summary = {
+        "selection": selection,
+        "private_aggregates": [
+            aggregate_rows(rows, 0),
+            aggregate_rows(rows, selected_id),
+        ],
+        "paired_private_best_minus_vanilla": {
+            "values": paired_differences,
+            "mean": float(np.mean(paired_differences)),
+            "std": float(np.std(paired_differences, ddof=1)),
+            "best_dh_wins": int(sum(value < 0.0 for value in paired_differences)),
+            "n_training_seeds": len(paired_differences),
+        },
+    }
+    atomic_write_json(LEARNED_ROOT / "final-summary.json", final_summary)
+    print(json.dumps(final_summary, indent=2))
 
 
 if __name__ == "__main__":
     main()
-

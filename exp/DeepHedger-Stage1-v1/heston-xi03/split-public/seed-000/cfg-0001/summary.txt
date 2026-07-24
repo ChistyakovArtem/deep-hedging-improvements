@@ -1,0 +1,17 @@
+score: -10.9561529677829
+entropic_risk: 10.9561529677829
+pnl_mean: -8.328762876359225
+pnl_std: 2.079012593121664
+loss_cvar_95: 12.646784438583474
+loss_cvar_99: 14.177637991967138
+fees_mean: 0.18278481374621391
+turnover_mean: 1.8320605786859991
+n_paths: 100000
+leaderboard: public
+paths_sha256: cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b
+seed: 0
+architecture: paf_shared
+paf_sigma: 0.1
+best_epoch: 7000
+fit_and_eval_seconds: 549.894949965179
+smoke: False

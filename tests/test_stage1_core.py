@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from pathlib import Path
 
 import numpy as np
+import pytest
 import torch
 
 from deep_hedger import DeepHedger as PublicDeepHedger
 from src.evaluation import backtest_actions, entropic_risk
 from src.hedger import DeepHedger, DeepHedgerConfig
 from src.market import TorchHestonStream, paths_sha256, sample_heston_numpy
+import src.nirvana_io as nirvana_io
 
 
 MARKET = {
@@ -86,3 +89,35 @@ def test_one_class_builds_every_stage1_architecture() -> None:
         assert actions.shape == (16, 3)
         assert outputs["pnl"].shape == (16,)
         assert torch.isfinite(actions).all()
+
+
+def test_snapshot_restore_republishes_completed_prefix(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project = tmp_path / "project"
+    snapshot = tmp_path / "snapshot"
+    output = tmp_path / "output"
+    relative = Path("exp/model/market/split/seed-000/cfg-0000")
+    local_config = project / relative / "config.toml"
+    snapshot_dir = snapshot / relative
+    local_config.parent.mkdir(parents=True)
+    snapshot_dir.mkdir(parents=True)
+    local_config.write_text("[experiment]\nid = 0\n")
+    (snapshot_dir / "config.toml").write_bytes(local_config.read_bytes())
+    (snapshot_dir / "DONE").touch()
+    (snapshot_dir / "scores-public.json").write_text('{"entropic_risk": 1.0}\n')
+
+    monkeypatch.setattr(nirvana_io, "PROJECT_ROOT", project)
+    monkeypatch.setenv("SNAPSHOT_PATH", str(snapshot))
+    monkeypatch.setenv("TMP_OUTPUT_PATH", str(output))
+
+    counts = nirvana_io.restore_snapshot()
+
+    assert counts == {
+        "restored": 1,
+        "republished_output": 1,
+        "skipped_incompatible": 0,
+    }
+    assert (project / relative / "scores-public.json").exists()
+    assert (output / relative / "scores-public.json").exists()

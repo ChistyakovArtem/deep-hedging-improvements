@@ -1,0 +1,19 @@
+{
+  "architecture": "paf_shared",
+  "best_epoch": 8800,
+  "entropic_risk": 12.711215635801041,
+  "fees_mean": 0.21978860874697567,
+  "fit_and_eval_seconds": 575.0957976058125,
+  "leaderboard": "public",
+  "loss_cvar_95": 13.890313258530544,
+  "loss_cvar_99": 15.757529344472971,
+  "n_paths": 100000,
+  "paf_sigma": 3.0,
+  "paths_sha256": "cc6e5c64489edf3cd15924a8c5bb1f96a47ea59de0595d6c52249efa5b22bb5b",
+  "pnl_mean": -8.365068149413467,
+  "pnl_std": 2.756699780694419,
+  "score": -12.711215635801041,
+  "seed": 0,
+  "smoke": false,
+  "turnover_mean": 2.217501093373299
+}

@@ -11,7 +11,8 @@ from src.config import PROJECT_ROOT
 
 PROFILE = {
     "workflow_id": "f0068707-2efe-4041-8eff-753ad855ca1b",
-    "data_ids": ["89e7ab8f-1441-4bd9-9707-ca62eb56ad79"],
+    "data_ids": [],
+    "data_commands": "mkdir -p data",
     "layer_id": "b32d8346-8370-46f4-8014-0a1349f62b2f",
     "n_gpus": 1,
     "n_cpu_cores": 2,
@@ -64,6 +65,8 @@ def validate_graphs(graphs: list[dict]) -> None:
             raise RuntimeError("Full runs were explicitly requested at normal priority.")
         if graph["job_scheduler_yt_pool"] != "nirvana-yr-tabular":
             raise RuntimeError("Full runs must use the tabular scheduler pool.")
+        if graph["data_ids"] or graph["data_commands"] != "mkdir -p data":
+            raise RuntimeError("Stage 1 must generate its frozen leaderboards locally.")
 
 
 def main() -> None:
@@ -84,4 +87,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

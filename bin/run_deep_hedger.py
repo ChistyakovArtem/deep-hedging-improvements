@@ -124,7 +124,8 @@ def run(
         "\n".join(f"{key}: {value}" for key, value in scores.items()) + "\n"
     )
     touch_terminal(output_dir, "DONE")
-    publish_experiment(output_dir)
+    if not smoke:
+        publish_experiment(output_dir)
     return output_dir
 
 

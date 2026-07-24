@@ -344,6 +344,114 @@ def test_action_head_is_orthogonal_to_encoder_and_reference() -> None:
     )
 
 
+def test_running_pnl_is_predecision_discounted_hedge_wealth() -> None:
+    class RecordingPolicy(nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.inputs: list[torch.Tensor] = []
+            self.actions = (0.5, 0.25, -0.1)
+
+        def forward(
+            self,
+            values: torch.Tensor,
+            no_cost_delta: torch.Tensor | None = None,
+        ) -> torch.Tensor:
+            del no_cost_delta
+            index = len(self.inputs)
+            self.inputs.append(values.detach().clone())
+            return torch.full_like(values[:, 0], self.actions[index])
+
+    hedger = DeepHedger(
+        MARKET,
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            feature_mode="normalized",
+            use_running_pnl=True,
+            running_pnl_scale=1.0,
+        ),
+        device="cpu",
+    )
+    recorder = RecordingPolicy()
+    hedger.policy = recorder
+    paths = torch.tensor(
+        [[[100.0, 0.04], [110.0, 0.04], [105.0, 0.04], [120.0, 0.04]]]
+    )
+    actions = hedger.predict_actions(paths)
+
+    discounted_spot_1 = 110.0 * np.exp(-MARKET["r"] / 3.0)
+    cash_after_0 = -0.5 * 100.0 - MARKET["transaction_cost"] * 0.5 * 100.0
+    wealth_1 = cash_after_0 + 0.5 * discounted_spot_1
+    cash_after_1 = (
+        cash_after_0
+        + 0.25 * discounted_spot_1
+        - MARKET["transaction_cost"] * 0.25 * discounted_spot_1
+    )
+    discounted_spot_2 = 105.0 * np.exp(-2.0 * MARKET["r"] / 3.0)
+    wealth_2 = cash_after_1 + 0.25 * discounted_spot_2
+
+    assert torch.allclose(actions, torch.tensor([[0.5, 0.25, -0.1]]))
+    assert recorder.inputs[0].shape == (1, 5)
+    assert recorder.inputs[0][0, -1] == 0.0
+    assert torch.allclose(recorder.inputs[1][0, 3], torch.tensor(0.5))
+    assert torch.allclose(
+        recorder.inputs[1][0, -1],
+        torch.tensor(wealth_1, dtype=torch.float32),
+        atol=1e-6,
+    )
+    assert torch.allclose(
+        recorder.inputs[2][0, -1],
+        torch.tensor(wealth_2, dtype=torch.float32),
+        atol=1e-6,
+    )
+
+
+def test_running_pnl_expands_each_supported_encoder_without_changing_old_default() -> None:
+    paths = torch.as_tensor(sample_heston_numpy(MARKET, 16, seed=101))
+    base = DeepHedger(
+        MARKET,
+        OBJECTIVE,
+        config=DeepHedgerConfig(hidden_dims=(64, 32), seed=5),
+        device="cpu",
+    )
+    with_pnl = DeepHedger(
+        MARKET,
+        OBJECTIVE,
+        config=DeepHedgerConfig(
+            hidden_dims=(64, 32),
+            use_running_pnl=True,
+            seed=5,
+        ),
+        device="cpu",
+    )
+    assert base.policy.mlp[0].in_features == 4
+    assert with_pnl.policy.mlp[0].in_features == 5
+    assert sum(p.numel() for p in with_pnl.policy.parameters()) == (
+        sum(p.numel() for p in base.policy.parameters()) + 64
+    )
+
+    for architecture, feature_mode in (
+        ("mlp", "normalized"),
+        ("ntbn", "ntbn_paper"),
+        ("paf_shared", "normalized"),
+        ("paf_featurewise", "normalized"),
+    ):
+        hedger = DeepHedger(
+            MARKET,
+            OBJECTIVE,
+            config=DeepHedgerConfig(
+                architecture=architecture,
+                feature_mode=feature_mode,
+                hidden_dims=(32, 32, 32, 32)
+                if architecture == "ntbn"
+                else (64, 32),
+                activation="relu" if architecture == "ntbn" else "leaky_relu",
+                use_running_pnl=True,
+            ),
+            device="cpu",
+        )
+        assert torch.isfinite(hedger.predict_actions(paths)).all()
+
+
 def test_snapshot_restore_republishes_completed_prefix(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

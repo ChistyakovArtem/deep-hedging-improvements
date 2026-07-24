@@ -42,6 +42,8 @@ class DeepHedgerConfig:
     reference_cf_phi_min: float = 1e-8
     reference_cf_phi_max: float = 200.0
     reference_cf_batch_size: int = 8192
+    use_running_pnl: bool = False
+    running_pnl_scale: float = 1.0
     learning_rate: float = 1e-3
     optimizer: str = "adam"
     n_epochs: int = 10_000
@@ -131,6 +133,8 @@ class DeepHedgerConfig:
             raise ValueError("reference_leland_scale must be non-negative.")
         if self.reference_no_trade_width < 0.0:
             raise ValueError("reference_no_trade_width must be non-negative.")
+        if self.running_pnl_scale <= 0.0:
+            raise ValueError("running_pnl_scale must be positive.")
         if self.time_parameterization == "per_step" and self.feature_mode != "paper_log_state":
             raise ValueError(
                 "Per-step networks require paper_log_state, where time is "
@@ -181,10 +185,16 @@ class _PeriodicEmbedding(nn.Module):
 
 
 class _Policy(nn.Module):
-    def __init__(self, config: DeepHedgerConfig, input_dim: int):
+    def __init__(
+        self,
+        config: DeepHedgerConfig,
+        input_dim: int,
+        previous_hedge_index: int,
+    ):
         super().__init__()
         self.architecture = config.architecture
         self.action_head = config.resolved_action_head()
+        self.previous_hedge_index = previous_hedge_index
         if config.architecture in {"mlp", "ntbn"}:
             self.embedding = None
             if config.architecture == "ntbn":
@@ -199,7 +209,7 @@ class _Policy(nn.Module):
                 sigma=config.paf_sigma,
                 include_linear=config.periodic_include_linear,
             )
-            input_dim = self.embedding.output_dim + 1
+            input_dim = self.embedding.output_dim + (input_dim - 3)
 
         layers: list[nn.Module] = []
         previous_dim = input_dim
@@ -236,18 +246,31 @@ class _Policy(nn.Module):
         no_cost_delta: torch.Tensor | None = None,
     ) -> torch.Tensor:
         if self.architecture == "ntbn":
-            representation = values[:, :-1]
+            representation = torch.cat(
+                (
+                    values[:, : self.previous_hedge_index],
+                    values[:, self.previous_hedge_index + 1 :],
+                ),
+                dim=1,
+            )
         elif self.embedding is None:
             representation = values
         else:
-            representation = torch.cat((self.embedding(values[:, :3]), values[:, 3:4]), dim=1)
+            representation = torch.cat(
+                (self.embedding(values[:, :3]), values[:, 3:]),
+                dim=1,
+            )
         if self.action_head == "delta_band":
             if no_cost_delta is None:
                 raise ValueError("A delta-band head requires a reference center.")
             band_width = self.mlp(representation)
             lower = no_cost_delta - F.leaky_relu(band_width[:, 0])
             upper = no_cost_delta + F.leaky_relu(band_width[:, 1])
-            return self._clamp_to_band(values[:, -1], lower, upper)
+            return self._clamp_to_band(
+                values[:, self.previous_hedge_index],
+                lower,
+                upper,
+            )
         return self.mlp(representation).squeeze(1)
 
 
@@ -275,12 +298,18 @@ class DeepHedger:
         )
         self._set_seed(config.seed)
         input_dim = self._input_dim()
+        previous_hedge_index = self._previous_hedge_index()
         if config.time_parameterization == "per_step":
             self.policy: _Policy | nn.ModuleList = nn.ModuleList(
-                _Policy(config, input_dim) for _ in range(int(self.market["N"]))
+                _Policy(config, input_dim, previous_hedge_index)
+                for _ in range(int(self.market["N"]))
             ).to(self.device)
         else:
-            self.policy = _Policy(config, input_dim).to(self.device)
+            self.policy = _Policy(
+                config,
+                input_dim,
+                previous_hedge_index,
+            ).to(self.device)
         self.reference_hedge = None
         if config.resolved_action_head() != "direct":
             self.reference_hedge = ReferenceHedge(
@@ -314,6 +343,7 @@ class DeepHedger:
         paths: torch.Tensor,
         step: int,
         previous_hedge: torch.Tensor,
+        running_pnl: torch.Tensor | None = None,
     ) -> torch.Tensor:
         time_ratio = 1.0 - step / int(self.market["N"])
         spot = paths[:, step, 0]
@@ -345,14 +375,21 @@ class DeepHedger:
             values = (torch.log(spot), variance, previous_hedge)
         else:  # guarded by DeepHedgerConfig.validate()
             raise RuntimeError(f"Unsupported feature mode: {self.config.feature_mode}")
+        if self.config.use_running_pnl:
+            if running_pnl is None:
+                raise ValueError("Running PnL is enabled but was not supplied.")
+            values = (
+                *values,
+                running_pnl / float(self.config.running_pnl_scale),
+            )
         return torch.stack(values, dim=1)
 
     def _input_dim(self) -> int:
-        if self.config.architecture in {"paf_shared", "paf_featurewise"}:
-            return 4
-        if self.config.feature_mode == "paper_log_state":
-            return 3
-        return 4
+        base = 3 if self.config.feature_mode == "paper_log_state" else 4
+        return base + int(self.config.use_running_pnl)
+
+    def _previous_hedge_index(self) -> int:
+        return 2 if self.config.feature_mode == "paper_log_state" else 3
 
     def _policy_for_step(self, step: int) -> _Policy:
         if isinstance(self.policy, nn.ModuleList):
@@ -373,10 +410,24 @@ class DeepHedger:
         n_paths = len(paths)
         previous = torch.zeros(n_paths, device=self.device, dtype=paths.dtype)
         previous_reference = torch.zeros_like(previous)
+        cash = torch.zeros_like(previous)
         action_head = self.config.resolved_action_head()
         actions = []
         for step in range(int(self.market["N"])):
-            features = self._features(paths, step, previous)
+            discounted_spot = None
+            running_pnl = None
+            if self.config.use_running_pnl:
+                time = float(self.market["T"]) * step / int(self.market["N"])
+                discounted_spot = paths[:, step, 0] * math.exp(
+                    -float(self.market["r"]) * time
+                )
+                running_pnl = cash + previous * discounted_spot
+            features = self._features(
+                paths,
+                step,
+                previous,
+                running_pnl=running_pnl,
+            )
             policy = self._policy_for_step(step)
             reference = None
             if self.reference_hedge is not None:
@@ -397,6 +448,15 @@ class DeepHedger:
             else:
                 action = policy(features)
             actions.append(action)
+            if discounted_spot is not None:
+                trade = action - previous
+                cash = (
+                    cash
+                    - trade * discounted_spot
+                    - float(self.market["transaction_cost"])
+                    * trade.abs()
+                    * discounted_spot
+                )
             previous = action
             if reference is not None:
                 previous_reference = reference

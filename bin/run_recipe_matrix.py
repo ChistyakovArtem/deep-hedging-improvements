@@ -45,6 +45,8 @@ def _hedger_config(config: dict) -> DeepHedgerConfig:
         reference_cf_phi_min=float(model["reference_cf_phi_min"]),
         reference_cf_phi_max=float(model["reference_cf_phi_max"]),
         reference_cf_batch_size=int(model["reference_cf_batch_size"]),
+        use_running_pnl=bool(model.get("use_running_pnl", False)),
+        running_pnl_scale=float(model.get("running_pnl_scale", 1.0)),
         learning_rate=float(training["learning_rate"]),
         optimizer=str(training["optimizer"]),
         n_epochs=int(training["n_epochs"]),

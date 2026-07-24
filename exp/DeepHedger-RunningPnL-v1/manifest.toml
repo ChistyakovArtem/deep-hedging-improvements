@@ -1,0 +1,40 @@
+experiment = "DeepHedger-RunningPnL-v1"
+n_markets = 2
+n_seeds = 8
+n_configs = 16
+private_access = false
+paired_baseline = "DeepHedger-RecipeMatrix-v1/v04-residual-best-overall"
+config_directories = [
+    "exp/DeepHedger-RunningPnL-v1/heston-xi01/public/seed-000",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi01/public/seed-001",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi01/public/seed-002",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi01/public/seed-003",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi01/public/seed-004",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi01/public/seed-005",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi01/public/seed-006",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi01/public/seed-007",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi03/public/seed-000",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi03/public/seed-001",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi03/public/seed-002",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi03/public/seed-003",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi03/public/seed-004",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi03/public/seed-005",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi03/public/seed-006",
+    "exp/DeepHedger-RunningPnL-v1/heston-xi03/public/seed-007",
+]
+
+[factor]
+name = "running_pnl"
+levels = [
+    "absent in paired baseline",
+    "present in this experiment",
+]
+definition = "pre-decision discounted hedge wealth after all prior fees"
+scale = 1.0
+
+[common_protocol]
+accounting = "discounted"
+objective = "entropic_risk_gamma_1"
+training_budget = "10000 updates x 3000 fresh paths"
+checkpoint_selection = "frozen 100000-path public board"
+no_paf = true
